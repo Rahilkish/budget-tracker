@@ -27,7 +27,6 @@
         h1, h2, h3 { margin-top: 0; }
         
         input, button { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; transition: all 0.2s; }
-        input::placeholder { color: #94a3b8; }
         input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         button { background: var(--text-main); color: white; border: none; font-weight: 600; cursor: pointer; }
         button:active { transform: scale(0.98); }
@@ -46,408 +45,231 @@
         .expense-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px dashed var(--border); cursor: pointer; border-radius: 8px; transition: background 0.2s;}
         .expense-item:last-child { border-bottom: none; }
         .expense-item:active { background-color: #f1f5f9; }
-        .expense-name { font-weight: 500; font-size: 16px; }
-        .expense-amt { font-weight: 600; font-size: 16px; }
         
         .day-group { margin-top: 20px; padding-top: 5px; }
         .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 16px; }
         .day-date { font-size: 13px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; background: #f1f5f9; padding: 4px 10px; border-radius: 8px; }
-        .day-meta { font-size: 14px; font-weight: 600; }
-        .day-meta .limit { color: var(--text-muted); font-weight: 400; font-size: 13px; }
         
         .week-card { margin-bottom: 12px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface); }
-        .week-header { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 16px; cursor: pointer; transition: background 0.2s; }
-        .week-header:active { background: #f1f5f9; }
-        .week-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; display: flex; align-items: center; }
-        .arrow { font-size: 10px; margin-left: 10px; transition: transform 0.3s; }
+        .week-header { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 16px; cursor: pointer; }
+        .week-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; }
         .week-remaining { font-size: 18px; font-weight: 700; }
         
         .week-summary { background: var(--bg); border-radius: 8px; padding: 12px 16px; margin: 12px 16px 20px 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
         .week-summary-label { color: var(--text-muted); font-size: 14px; font-weight: 500; }
         .week-summary-val { font-size: 16px; font-weight: 700; }
 
-        .view { display: none; animation: fadeIn 0.3s ease; }
-        .view.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 12px 10px 25px 10px; box-shadow: 0 -4px 20px rgba(0,0,0,0.04); max-width: 400px; margin: 0 auto; border-top: 1px solid var(--border); z-index: 10; }
-        .nav-btn { background: none; color: var(--text-muted); border: none; padding: 10px; margin: 0; font-size: 13px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; width: auto; transition: color 0.2s; }
+        .nav-btn { background: none; color: var(--text-muted); border: none; padding: 10px; font-size: 13px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .nav-btn.active { color: var(--primary); }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 20; justify-content: center; align-items: center; padding: 15px; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: var(--surface); width: 100%; max-width: 340px; border-radius: 20px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .modal-content { background: var(--surface); width: 100%; max-width: 340px; border-radius: 20px; padding: 24px; }
         .modal-actions { display: flex; gap: 12px; margin-top: 16px; }
-        .btn-cancel { background: white; color: var(--text-main); border: 1px solid var(--border); }
 
         .keypad-container { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--keypad-bg); z-index: 30; padding: 15px 15px calc(15px + env(safe-area-inset-bottom)) 15px; box-shadow: 0 -10px 25px rgba(0,0,0,0.05); max-width: 400px; margin: 0 auto; border-top-left-radius: 24px; border-top-right-radius: 24px; }
-        .keypad-container.active { display: block; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        
-        .keypad-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: white; padding: 12px 20px; border-radius: 12px; font-size: 24px; font-weight: 700; min-height: 56px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .keypad-container.active { display: block; }
+        .keypad-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: white; padding: 12px 20px; border-radius: 12px; font-size: 24px; font-weight: 700; min-height: 56px; }
         .keypad-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .keypad-btn { background: white; border: none; border-radius: 12px; font-size: 22px; padding: 16px 0; font-weight: 500; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); color: var(--text-main); }
-        .keypad-btn:active { background: #e2e8f0; transform: scale(0.95); }
+        .keypad-btn { background: white; border: none; border-radius: 12px; font-size: 22px; padding: 16px 0; font-weight: 500; }
         .keypad-btn.op { background: #e0f2fe; color: var(--primary); font-weight: 600; }
-        .keypad-btn.action { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+        .keypad-btn.action { background: var(--primary); color: white; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    
-    <div id="view-home" class="view active">
+    <div id="view-home" class="view active" style="display:block;">
         <div class="card" style="background: transparent; box-shadow: none; padding: 0;">
             <div class="header-main">
                 <h2>Overview</h2>
-                <div class="total-budget">Left: <span id="monthlyBudgetDisplayMain">₹0</span></div>
+                <div class="total-budget">Month Left: <span id="monthlyBudgetDisplayMain">₹0</span></div>
             </div>
             <div id="monthContainer"></div>
         </div>
     </div>
 
-    <div id="view-add" class="view">
+    <div id="view-add" class="view" style="display:none;">
         <div class="card">
             <h2 style="margin-bottom: 24px;">New Expense</h2>
-            <input type="text" id="expenseName" placeholder="What did you buy? e.g. Coffee">
-            <input type="text" id="expenseAmount" class="calc-input" readonly placeholder="Amount (Tap to enter)" onclick="openKeypad('expenseAmount')">
+            <input type="text" id="expenseName" placeholder="Item Name">
+            <input type="text" id="expenseAmount" class="calc-input" readonly placeholder="Amount" onclick="openKeypad('expenseAmount')">
             <input type="date" id="expenseDate">
             <button onclick="addExpense()" style="background: var(--primary); margin-top: 10px;">Save Expense</button>
         </div>
     </div>
 
-    <div id="view-settings" class="view">
+    <div id="view-settings" class="view" style="display:none;">
         <div class="card">
-            <h2 style="margin-bottom: 24px;">Budgets & Limits</h2>
-            
-            <label style="display:block; margin-bottom:8px; font-weight:600; color:var(--text-main); font-size:14px;">Total Monthly Budget</label>
+            <h2 style="margin-bottom: 24px;">Setup Month</h2>
+            <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Total Monthly Budget</label>
             <input type="text" id="monthlyBudgetInput" class="calc-input" readonly placeholder="₹0" onclick="openKeypad('monthlyBudgetInput')">
-            
-            <label style="display:block; margin-bottom:8px; font-weight:600; color:var(--text-main); font-size:14px; margin-top:16px;">Weekly Budget</label>
-            <input type="text" id="weeklyBudgetInput" class="calc-input" readonly placeholder="₹0" onclick="openKeypad('weeklyBudgetInput')">
-            
-            <div style="background: var(--bg); padding: 16px; border-radius: 12px; margin-top: 24px; border: 1px solid var(--border);">
-                <div style="display:flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 14px; font-weight: 600; color: var(--text-muted);">Standard Daily Limit:</span>
-                    <span id="dailyLimitDisplay" style="font-size: 18px; font-weight: 700; color: var(--text-main);">₹0</span>
-                </div>
-            </div>
-
-            <button onclick="saveBudget()" style="margin-top:24px;">Save Settings</button>
+            <button onclick="saveBudget()" style="margin-top:24px;">Save Budget</button>
             <button onclick="clearAllData()" style="margin-top:10px; background: var(--danger);">Clear All Data</button>
         </div>
     </div>
-
 </div>
 
 <nav class="bottom-nav">
-    <button class="nav-btn active" onclick="switchTab('view-home', this)">
-        <span style="font-size: 20px;">📊</span> Timeline
-    </button>
-    <button class="nav-btn" onclick="switchTab('view-add', this)">
-        <span style="font-size: 20px;">➕</span> Add
-    </button>
-    <button class="nav-btn" onclick="switchTab('view-settings', this)">
-        <span style="font-size: 20px;">⚙️</span> Settings
-    </button>
+    <button class="nav-btn active" onclick="switchTab('view-home', this)"><span>📊</span> Timeline</button>
+    <button class="nav-btn" onclick="switchTab('view-add', this)"><span>➕</span> Add</button>
+    <button class="nav-btn" onclick="switchTab('view-settings', this)"><span>⚙️</span> Settings</button>
 </nav>
 
 <div id="editModal" class="modal-overlay">
     <div class="modal-content">
-        <h2 style="margin-top:0; margin-bottom: 20px;">Edit Expense</h2>
-        <input type="hidden" id="editId">
-        <input type="text" id="editName" placeholder="What did you buy?">
-        <input type="text" id="editAmount" class="calc-input" readonly placeholder="Amount" onclick="openKeypad('editAmount')">
-        <input type="date" id="editDate">
-        
-        <div class="modal-actions">
-            <button onclick="saveEdit()" style="background:var(--success);">Update</button>
-            <button onclick="deleteExpense()" style="background:var(--danger);">Delete</button>
-        </div>
-        <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+        <h2 style="margin-top:0;">Edit</h2>
+        <input type="hidden" id="editId"><input type="text" id="editName"><input type="text" id="editAmount" class="calc-input" readonly onclick="openKeypad('editAmount')"><input type="date" id="editDate">
+        <div class="modal-actions"><button onclick="saveEdit()" style="background:var(--success);">Update</button><button onclick="deleteExpense()" style="background:var(--danger);">Delete</button></div>
+        <button onclick="closeEditModal()" style="background:white; color:black; border:1px solid #ddd; margin-top:10px;">Cancel</button>
     </div>
 </div>
 
 <div id="keypad" class="keypad-container">
-    <div class="keypad-header">
-        <span id="keypadDisplay"></span>
-        <button class="keypad-btn action" style="width:auto; padding:6px 16px; font-size:15px; box-shadow:none; border-radius: 8px;" onclick="closeKeypad()">Done</button>
-    </div>
+    <div class="keypad-header"><span id="keypadDisplay"></span><button class="keypad-btn action" style="width:auto; padding:6px 16px; font-size:15px;" onclick="closeKeypad()">Done</button></div>
     <div class="keypad-grid">
-        <button class="keypad-btn" onclick="kp('7')">7</button>
-        <button class="keypad-btn" onclick="kp('8')">8</button>
-        <button class="keypad-btn" onclick="kp('9')">9</button>
-        <button class="keypad-btn op" onclick="kp('/')">÷</button>
-        
-        <button class="keypad-btn" onclick="kp('4')">4</button>
-        <button class="keypad-btn" onclick="kp('5')">5</button>
-        <button class="keypad-btn" onclick="kp('6')">6</button>
-        <button class="keypad-btn op" onclick="kp('*')">×</button>
-        
-        <button class="keypad-btn" onclick="kp('1')">1</button>
-        <button class="keypad-btn" onclick="kp('2')">2</button>
-        <button class="keypad-btn" onclick="kp('3')">3</button>
-        <button class="keypad-btn op" onclick="kp('-')">−</button>
-        
-        <button class="keypad-btn op" onclick="kp('C')">C</button>
-        <button class="keypad-btn" onclick="kp('0')">0</button>
-        <button class="keypad-btn" onclick="kp('.')">.</button>
-        <button class="keypad-btn op" onclick="kp('+')">+</button>
-        
-        <button class="keypad-btn op" style="grid-column: span 2;" onclick="kp('del')">⌫</button>
-        <button class="keypad-btn action" style="grid-column: span 2;" onclick="kp('=')">=</button>
+        <button class="keypad-btn" onclick="kp('7')">7</button><button class="keypad-btn" onclick="kp('8')">8</button><button class="keypad-btn" onclick="kp('9')">9</button><button class="keypad-btn op" onclick="kp('/')">÷</button>
+        <button class="keypad-btn" onclick="kp('4')">4</button><button class="keypad-btn" onclick="kp('5')">5</button><button class="keypad-btn" onclick="kp('6')">6</button><button class="keypad-btn op" onclick="kp('*')">×</button>
+        <button class="keypad-btn" onclick="kp('1')">1</button><button class="keypad-btn" onclick="kp('2')">2</button><button class="keypad-btn" onclick="kp('3')">3</button><button class="keypad-btn op" onclick="kp('-')">−</button>
+        <button class="keypad-btn op" onclick="kp('C')">C</button><button class="keypad-btn" onclick="kp('0')">0</button><button class="keypad-btn" onclick="kp('.')">.</button><button class="keypad-btn op" onclick="kp('+')">+</button>
+        <button class="keypad-btn op" style="grid-column: span 2;" onclick="kp('del')">⌫</button><button class="keypad-btn action" style="grid-column: span 2;" onclick="kp('=')">=</button>
     </div>
 </div>
 
 <script>
     let monthlyBudget = parseFloat(localStorage.getItem('monthlyBudget')) || 0;
-    let weeklyBudget = parseFloat(localStorage.getItem('weeklyBudget')) || 0;
     let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-
     document.getElementById('expenseDate').valueAsDate = new Date();
 
     let activeInputId = null;
-
-    function openKeypad(inputId) {
-        activeInputId = inputId;
-        const currentVal = document.getElementById(inputId).value;
-        document.getElementById('keypadDisplay').innerText = currentVal;
-        document.getElementById('keypad').classList.add('active');
+    function openKeypad(id) { activeInputId = id; document.getElementById('keypadDisplay').innerText = document.getElementById(id).value; document.getElementById('keypad').classList.add('active'); }
+    function closeKeypad() { kp('='); document.getElementById('keypad').classList.remove('active'); activeInputId = null; }
+    function kp(v) {
+        const d = document.getElementById('keypadDisplay');
+        if (v === 'C') d.innerText = '';
+        else if (v === 'del') d.innerText = d.innerText.slice(0, -1);
+        else if (v === '=') { try { d.innerText = eval(d.innerText.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-')) || ''; } catch(e){} }
+        else d.innerText += (v==='*')?'×':(v==='/')?'÷':(v==='-')?'−':v;
+        if(activeInputId) document.getElementById(activeInputId).value = d.innerText;
     }
 
-    function closeKeypad() {
-        kp('='); 
-        document.getElementById('keypad').classList.remove('active');
-        if(activeInputId === 'monthlyBudgetInput') {
-            const mVal = parseFloat(document.getElementById('monthlyBudgetInput').value);
-            if(!isNaN(mVal)) { document.getElementById('weeklyBudgetInput').value = Math.round(mVal / 4); }
-        } 
-        else if(activeInputId === 'weeklyBudgetInput') {
-            const wVal = parseFloat(document.getElementById('weeklyBudgetInput').value);
-            if(!isNaN(wVal)) { document.getElementById('monthlyBudgetInput').value = Math.round(wVal * 4); }
-        }
-        activeInputId = null;
+    function switchTab(id, btn) {
+        document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).style.display = 'block';
+        btn.classList.add('active');
     }
 
-    function kp(val) {
-        const display = document.getElementById('keypadDisplay');
-        let current = display.innerText;
-        if (val === 'C') { current = ''; } 
-        else if (val === 'del') { current = current.slice(0, -1); } 
-        else if (val === '=') {
-            try {
-                let mathStr = current.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
-                if(mathStr) {
-                    let result = Function('"use strict";return (' + mathStr + ')')();
-                    current = Math.round(result * 100) / 100; 
-                }
-            } catch(e) { }
-        } else {
-            if (['/','*','-','+'].includes(val)) {
-                const visualOp = val === '*' ? '×' : val === '/' ? '÷' : val === '-' ? '−' : '+';
-                current += visualOp;
-            } else { current += val; }
-        }
-        display.innerText = current;
-        if(activeInputId) { document.getElementById(activeInputId).value = current; }
-    }
-
-    function openEditModal(id) {
-        const exp = expenses.find(e => e.id === id);
-        if(!exp) return;
-        document.getElementById('editId').value = exp.id;
-        document.getElementById('editName').value = exp.name;
-        document.getElementById('editAmount').value = exp.amount;
-        document.getElementById('editDate').value = exp.date;
-        document.getElementById('editModal').classList.add('active');
-    }
-
-    function closeEditModal() {
-        document.getElementById('editModal').classList.remove('active');
-        document.getElementById('keypad').classList.remove('active'); 
-    }
-
-    function saveEdit() {
-        const id = parseInt(document.getElementById('editId').value);
-        const name = document.getElementById('editName').value;
-        const amount = parseFloat(document.getElementById('editAmount').value);
-        const date = document.getElementById('editDate').value;
-        if(!name || isNaN(amount) || !date) return alert("Please enter valid data");
-        const index = expenses.findIndex(e => e.id === id);
-        if(index !== -1) {
-            expenses[index] = { id, name, amount, date };
-            localStorage.setItem('expenses', JSON.stringify(expenses));
-            updateUI();
-            closeEditModal();
-        }
-    }
-
-    function deleteExpense() {
-        const id = parseInt(document.getElementById('editId').value);
-        if(confirm("Delete this expense?")) {
-            expenses = expenses.filter(e => e.id !== id);
-            localStorage.setItem('expenses', JSON.stringify(expenses));
-            updateUI();
-            closeEditModal();
-        }
-    }
-
-    function clearAllData() {
-        if(confirm("Are you sure? This will delete all expenses and budgets forever.")) {
-            localStorage.clear();
-            location.reload();
-        }
-    }
-
-    function formatINR(amount) { 
-        const isNegative = amount < 0;
-        const absAmount = Math.abs(Math.round(amount));
-        return (isNegative ? '-' : '') + '₹' + absAmount.toLocaleString('en-IN'); 
-    }
-    
-    function formatCleanDate(dateString) {
-        const parts = dateString.split('-');
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        return `${months[parseInt(parts[1]) - 1]} ${parts[2]}`;
-    }
-
-    window.toggleWeek = function(w) {
-        const content = document.getElementById(`week-content-${w}`);
-        const arrow = document.getElementById(`arrow-${w}`);
-        if (content.style.display === 'none') {
-            content.style.display = 'block';
-            arrow.innerHTML = '&#9660;'; 
-        } else {
-            content.style.display = 'none';
-            arrow.innerHTML = '&#9654;'; 
-        }
-    };
-
-    function switchTab(tabId, clickedBtn) {
-        document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById('keypad').classList.remove('active'); 
-        document.getElementById(tabId).classList.add('active');
-        if(clickedBtn) clickedBtn.classList.add('active');
-    }
-
-    function saveBudget() {
+    function saveBudget() { 
         monthlyBudget = parseFloat(document.getElementById('monthlyBudgetInput').value) || 0;
-        weeklyBudget = parseFloat(document.getElementById('weeklyBudgetInput').value) || 0;
         localStorage.setItem('monthlyBudget', monthlyBudget);
-        localStorage.setItem('weeklyBudget', weeklyBudget);
-        updateUI();
-        switchTab('view-home');
+        updateUI(); switchTab('view-home', document.querySelector('.nav-btn'));
     }
 
     function addExpense() {
-        kp('='); 
-        const name = document.getElementById('expenseName').value;
-        const amount = parseFloat(document.getElementById('expenseAmount').value);
-        const date = document.getElementById('expenseDate').value;
-        if(!name || isNaN(amount) || !date) return alert("Fill all fields.");
-        expenses.push({ id: Date.now(), name, amount, date });
+        kp('='); const n = document.getElementById('expenseName').value, a = parseFloat(document.getElementById('expenseAmount').value), d = document.getElementById('expenseDate').value;
+        if(!n || isNaN(a) || !d) return alert("Fill all");
+        expenses.push({ id: Date.now(), name: n, amount: a, date: d });
         localStorage.setItem('expenses', JSON.stringify(expenses));
-        document.getElementById('expenseName').value = '';
-        document.getElementById('expenseAmount').value = '';
-        updateUI();
-        switchTab('view-home'); 
+        updateUI(); switchTab('view-home', document.querySelector('.nav-btn'));
     }
 
+    function openEditModal(id) {
+        const e = expenses.find(x => x.id === id);
+        document.getElementById('editId').value = e.id; document.getElementById('editName').value = e.name; document.getElementById('editAmount').value = e.amount; document.getElementById('editDate').value = e.date;
+        document.getElementById('editModal').classList.add('active');
+    }
+    function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
+    function saveEdit() {
+        const id = parseInt(document.getElementById('editId').value);
+        const idx = expenses.findIndex(x => x.id === id);
+        expenses[idx] = { id, name: document.getElementById('editName').value, amount: parseFloat(document.getElementById('editAmount').value), date: document.getElementById('editDate').value };
+        localStorage.setItem('expenses', JSON.stringify(expenses));
+        updateUI(); closeEditModal();
+    }
+    function deleteExpense() {
+        expenses = expenses.filter(x => x.id !== parseInt(document.getElementById('editId').value));
+        localStorage.setItem('expenses', JSON.stringify(expenses));
+        updateUI(); closeEditModal();
+    }
+
+    function formatINR(v) { return (v < 0 ? '-' : '') + '₹' + Math.abs(Math.round(v)).toLocaleString('en-IN'); }
+    function formatCleanDate(s) { const p = s.split('-'); const m = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; return `${m[p[1]-1]} ${p[2]}`; }
+    function clearAllData() { if(confirm("Clear all?")) { localStorage.clear(); location.reload(); } }
+
     function updateUI() {
-        document.getElementById('monthlyBudgetInput').value = monthlyBudget || '';
-        document.getElementById('weeklyBudgetInput').value = weeklyBudget || '';
-        document.getElementById('dailyLimitDisplay').innerText = formatINR(Math.round(weeklyBudget / 7));
-
         const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
-        const todayStr = now.toISOString().split('T')[0];
+        const curM = now.getMonth(), curY = now.getFullYear();
+        const lastDay = new Date(curY, curM + 1, 0).getDate();
+        const dayOfMonth = now.getDate();
         
-        // Find how many days are left in the CURRENT week (Mon-Sun logic)
-        // Day 0 is Sunday, so we adjust to make Sunday the 7th day
-        const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay();
-        const daysLeftInWeek = (7 - dayOfWeek) + 1; // including today
-
-        const thisMonthExpenses = expenses.filter(exp => {
-            const d = new Date(exp.date);
-            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        const thisMonthExps = expenses.filter(e => {
+            const d = new Date(e.date);
+            return d.getMonth() === curM && d.getFullYear() === curY;
         });
 
-        let monthlyTotalSpent = thisMonthExpenses.reduce((sum, e) => sum + e.amount, 0);
-        const monthlyRemainingEl = document.getElementById('monthlyBudgetDisplayMain');
-        monthlyRemainingEl.innerText = formatINR(monthlyBudget - monthlyTotalSpent);
+        const mSpent = thisMonthExps.reduce((s, e) => s + e.amount, 0);
+        const mLeft = monthlyBudget - mSpent;
+        document.getElementById('monthlyBudgetDisplayMain').innerText = formatINR(mLeft);
 
+        const curW = Math.ceil(dayOfMonth / 7);
+        const totalWeeks = Math.ceil(lastDay / 7);
+        const weeksLeft = (totalWeeks - curW) + 1; // including current week
+
+        // --- THE ADAPTIVE MATH ---
+        // Every future week gets an equal share of what is left for the month
+        const adaptiveWeeklyBudget = Math.max(0, mLeft / weeksLeft);
+        
         const weeks = {};
-        thisMonthExpenses.forEach(exp => {
-            const d = new Date(exp.date);
-            const w = Math.ceil(d.getDate() / 7);
+        thisMonthExps.forEach(e => {
+            const d = new Date(e.date), w = Math.ceil(d.getDate() / 7);
             if (!weeks[w]) weeks[w] = {};
-            if (!weeks[w][exp.date]) weeks[w][exp.date] = [];
-            weeks[w][exp.date].push(exp);
+            if (!weeks[w][e.date]) weeks[w][e.date] = [];
+            weeks[w][e.date].push(e);
         });
 
-        const currentWeekNum = Math.ceil(now.getDate() / 7);
-        const maxWeek = Math.max(currentWeekNum, ...Object.keys(weeks).map(Number), 1);
         const monthContainer = document.getElementById('monthContainer');
         monthContainer.innerHTML = '';
 
-        for (let w = maxWeek; w >= 1; w--) {
+        for (let w = totalWeeks; w >= 1; w--) {
             const weekDays = weeks[w] || {};
-            const isCurrentWeek = (w === currentWeekNum);
-            if (!isCurrentWeek && Object.keys(weekDays).length === 0) continue;
+            if (w !== curW && Object.keys(weekDays).length === 0) continue;
 
-            let weeklyTotal = 0;
-            Object.values(weekDays).forEach(list => list.forEach(e => weeklyTotal += e.amount));
-            const remaining = weeklyBudget - weeklyTotal;
-
-            // REBALANCING LOGIC: 
-            // Calculate limit for the rest of the week based on what is left
-            const dynamicDailyLimit = Math.max(0, Math.round(remaining / daysLeftInWeek));
+            let wSpent = 0;
+            Object.values(weekDays).forEach(list => list.forEach(e => wSpent += e.amount));
+            
+            // For historical weeks, we show how they performed. 
+            // For current week, we show the adaptive remaining budget.
+            const wRemaining = (w === curW) ? adaptiveWeeklyBudget - wSpent : (monthlyBudget/totalWeeks) - wSpent;
 
             let html = `
                 <div class="week-card">
-                    <div class="week-header" onclick="toggleWeek(${w})">
-                        <h3 class="week-title">WEEK ${w} <span id="arrow-${w}" class="arrow">${isCurrentWeek ? '&#9660;' : '&#9654;'}</span></h3>
+                    <div class="week-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+                        <h3 class="week-title">WEEK ${w}</h3>
                         <div style="text-align: right;">
-                            <div class="muted" style="font-size: 11px;">LEFT</div>
-                            <div class="week-remaining ${remaining < 0 ? 'red' : 'green'}">${formatINR(remaining)}</div>
+                            <div class="muted" style="font-size: 11px;">${w === curW ? 'REMAINING' : 'RESULT'}</div>
+                            <div class="week-remaining ${wRemaining < 0 ? 'red' : 'green'}">${formatINR(wRemaining)}</div>
                         </div>
                     </div>
-                    <div id="week-content-${w}" style="display: ${isCurrentWeek ? 'block' : 'none'}; padding-bottom: 10px;">
+                    <div style="display: ${w === curW ? 'block' : 'none'}; padding-bottom: 10px;">
             `;
 
-            if (isCurrentWeek) {
-                 html += `
-                    <div class="week-summary">
-                        <span class="week-summary-label">Safe to spend per day:</span>
-                        <span class="week-summary-val green">${formatINR(dynamicDailyLimit)}</span>
-                    </div>
-                 `;
+            if (w === curW) {
+                const daysInThisWeek = (Math.min(w * 7, lastDay) - (w-1)*7);
+                const dayOfThisWeek = dayOfMonth - (w-1)*7;
+                const daysLeftInW = (daysInThisWeek - dayOfThisWeek) + 1;
+                const safeDaily = Math.max(0, (adaptiveWeeklyBudget - wSpent) / daysLeftInW);
+                
+                html += `<div class="week-summary"><span class="week-summary-label">Safe per day:</span><span class="week-summary-val green">${formatINR(safeDaily)}</span></div>`;
             }
 
             const sortedDates = Object.keys(weekDays).sort((a,b) => new Date(b) - new Date(a));
             sortedDates.forEach(date => {
-                const dayTotal = weekDays[date].reduce((s, e) => s + e.amount, 0);
-                // We compare against the standard daily limit for history, 
-                // but today's header shows the rebalanced limit
-                const limitToCompare = (date === todayStr) ? dynamicDailyLimit : Math.round(weeklyBudget / 7);
-
-                html += `
-                    <div class="day-group">
-                        <div class="day-header">
-                            <span class="day-date">${formatCleanDate(date)}</span>
-                            <span class="day-meta ${dayTotal > limitToCompare ? 'red' : 'text-main'}">
-                                ${formatINR(dayTotal)} <span class="limit">/ ${formatINR(limitToCompare)} limit</span>
-                            </span>
-                        </div>
-                        <ul class="expense-list">
-                `;
+                const dTotal = weekDays[date].reduce((s, e) => s + e.amount, 0);
+                html += `<div class="day-group"><div class="day-header"><span class="day-date">${formatCleanDate(date)}</span><span class="day-meta">${formatINR(dTotal)}</span></div><ul class="expense-list">`;
                 weekDays[date].forEach(exp => {
-                    html += `<li class="expense-item" onclick="openEditModal(${exp.id})">
-                        <span class="expense-name">${exp.name}</span> 
-                        <span class="expense-amt muted">${formatINR(exp.amount)}</span>
-                    </li>`;
+                    html += `<li class="expense-item" onclick="openEditModal(${exp.id})"><span>${exp.name}</span><span class="muted">${formatINR(exp.amount)}</span></li>`;
                 });
                 html += `</ul></div>`;
             });
@@ -457,6 +279,5 @@
     }
     updateUI();
 </script>
-
 </body>
 </html>
