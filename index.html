@@ -128,12 +128,13 @@
             
             <div style="background: var(--bg); padding: 16px; border-radius: 12px; margin-top: 24px; border: 1px solid var(--border);">
                 <div style="display:flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 14px; font-weight: 600; color: var(--text-muted);">Daily Limit:</span>
+                    <span style="font-size: 14px; font-weight: 600; color: var(--text-muted);">Standard Daily Limit:</span>
                     <span id="dailyLimitDisplay" style="font-size: 18px; font-weight: 700; color: var(--text-main);">₹0</span>
                 </div>
             </div>
 
             <button onclick="saveBudget()" style="margin-top:24px;">Save Settings</button>
+            <button onclick="clearAllData()" style="margin-top:10px; background: var(--danger);">Clear All Data</button>
         </div>
     </div>
 
@@ -217,30 +218,20 @@
     function closeKeypad() {
         kp('='); 
         document.getElementById('keypad').classList.remove('active');
-        
-        // --- TWO-WAY SYNC LOGIC ---
         if(activeInputId === 'monthlyBudgetInput') {
             const mVal = parseFloat(document.getElementById('monthlyBudgetInput').value);
-            if(!isNaN(mVal)) {
-                // Monthly to Weekly (Divide by 4)
-                document.getElementById('weeklyBudgetInput').value = Math.round(mVal / 4);
-            }
+            if(!isNaN(mVal)) { document.getElementById('weeklyBudgetInput').value = Math.round(mVal / 4); }
         } 
         else if(activeInputId === 'weeklyBudgetInput') {
             const wVal = parseFloat(document.getElementById('weeklyBudgetInput').value);
-            if(!isNaN(wVal)) {
-                // Weekly to Monthly (Multiply by 4)
-                document.getElementById('monthlyBudgetInput').value = Math.round(wVal * 4);
-            }
+            if(!isNaN(wVal)) { document.getElementById('monthlyBudgetInput').value = Math.round(wVal * 4); }
         }
-        
         activeInputId = null;
     }
 
     function kp(val) {
         const display = document.getElementById('keypadDisplay');
         let current = display.innerText;
-
         if (val === 'C') { current = ''; } 
         else if (val === 'del') { current = current.slice(0, -1); } 
         else if (val === '=') {
@@ -257,7 +248,6 @@
                 current += visualOp;
             } else { current += val; }
         }
-        
         display.innerText = current;
         if(activeInputId) { document.getElementById(activeInputId).value = current; }
     }
@@ -282,9 +272,7 @@
         const name = document.getElementById('editName').value;
         const amount = parseFloat(document.getElementById('editAmount').value);
         const date = document.getElementById('editDate').value;
-
         if(!name || isNaN(amount) || !date) return alert("Please enter valid data");
-
         const index = expenses.findIndex(e => e.id === id);
         if(index !== -1) {
             expenses[index] = { id, name, amount, date };
@@ -304,21 +292,23 @@
         }
     }
 
+    function clearAllData() {
+        if(confirm("Are you sure? This will delete all expenses and budgets forever.")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+
     function formatINR(amount) { 
         const isNegative = amount < 0;
         const absAmount = Math.abs(Math.round(amount));
-        const formattedStr = absAmount.toLocaleString('en-IN');
-        return (isNegative ? '-' : '') + '₹' + formattedStr; 
+        return (isNegative ? '-' : '') + '₹' + absAmount.toLocaleString('en-IN'); 
     }
     
     function formatCleanDate(dateString) {
-        if (!dateString) return '';
         const parts = dateString.split('-');
-        if (parts.length !== 3) return dateString;
-        const monthIndex = parseInt(parts[1], 10) - 1;
-        const day = parts[2];
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        return `${months[monthIndex]} ${day}`;
+        return `${months[parseInt(parts[1]) - 1]} ${parts[2]}`;
     }
 
     window.toggleWeek = function(w) {
@@ -327,7 +317,6 @@
         if (content.style.display === 'none') {
             content.style.display = 'block';
             arrow.innerHTML = '&#9660;'; 
-            arrow.style.transform = "rotate(0deg)";
         } else {
             content.style.display = 'none';
             arrow.innerHTML = '&#9654;'; 
@@ -339,23 +328,14 @@
         document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
         document.getElementById('keypad').classList.remove('active'); 
         document.getElementById(tabId).classList.add('active');
-        if(clickedBtn) { clickedBtn.classList.add('active'); } 
-        else { document.querySelector('.nav-btn').classList.add('active'); }
+        if(clickedBtn) clickedBtn.classList.add('active');
     }
 
     function saveBudget() {
-        const mInput = document.getElementById('monthlyBudgetInput').value;
-        const wInput = document.getElementById('weeklyBudgetInput').value;
-        
-        if(mInput) {
-            monthlyBudget = parseFloat(mInput);
-            localStorage.setItem('monthlyBudget', monthlyBudget);
-        }
-        if(wInput) {
-            weeklyBudget = parseFloat(wInput);
-            localStorage.setItem('weeklyBudget', weeklyBudget);
-        }
-        
+        monthlyBudget = parseFloat(document.getElementById('monthlyBudgetInput').value) || 0;
+        weeklyBudget = parseFloat(document.getElementById('weeklyBudgetInput').value) || 0;
+        localStorage.setItem('monthlyBudget', monthlyBudget);
+        localStorage.setItem('weeklyBudget', weeklyBudget);
         updateUI();
         switchTab('view-home');
     }
@@ -365,15 +345,11 @@
         const name = document.getElementById('expenseName').value;
         const amount = parseFloat(document.getElementById('expenseAmount').value);
         const date = document.getElementById('expenseDate').value;
-
-        if(!name || isNaN(amount) || !date) return alert("Please fill out the expense details.");
-
+        if(!name || isNaN(amount) || !date) return alert("Fill all fields.");
         expenses.push({ id: Date.now(), name, amount, date });
         localStorage.setItem('expenses', JSON.stringify(expenses));
-        
         document.getElementById('expenseName').value = '';
         document.getElementById('expenseAmount').value = '';
-        
         updateUI();
         switchTab('view-home'); 
     }
@@ -381,127 +357,104 @@
     function updateUI() {
         document.getElementById('monthlyBudgetInput').value = monthlyBudget || '';
         document.getElementById('weeklyBudgetInput').value = weeklyBudget || '';
-        
-        const dailyLimit = Math.round(weeklyBudget / 7);
-        document.getElementById('dailyLimitDisplay').innerText = formatINR(dailyLimit);
+        document.getElementById('dailyLimitDisplay').innerText = formatINR(Math.round(weeklyBudget / 7));
 
         const now = new Date();
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
-        const currentWeekNum = Math.ceil(now.getDate() / 7);
+        const todayStr = now.toISOString().split('T')[0];
+        
+        // Find how many days are left in the CURRENT week (Mon-Sun logic)
+        // Day 0 is Sunday, so we adjust to make Sunday the 7th day
+        const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay();
+        const daysLeftInWeek = (7 - dayOfWeek) + 1; // including today
 
         const thisMonthExpenses = expenses.filter(exp => {
-            const expDate = new Date(exp.date);
-            return expDate.getMonth() === currentMonth && expDate.getFullYear() === currentYear;
+            const d = new Date(exp.date);
+            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
         });
 
-        let monthlyTotalSpent = 0;
-        thisMonthExpenses.forEach(exp => {
-            monthlyTotalSpent += exp.amount;
-        });
-        
-        const monthlyRemaining = monthlyBudget - monthlyTotalSpent;
+        let monthlyTotalSpent = thisMonthExpenses.reduce((sum, e) => sum + e.amount, 0);
         const monthlyRemainingEl = document.getElementById('monthlyBudgetDisplayMain');
-        monthlyRemainingEl.innerText = formatINR(monthlyRemaining);
-        monthlyRemainingEl.className = monthlyRemaining < 0 ? 'red' : '';
+        monthlyRemainingEl.innerText = formatINR(monthlyBudget - monthlyTotalSpent);
 
         const weeks = {};
         thisMonthExpenses.forEach(exp => {
-            const expDate = new Date(exp.date);
-            const weekNum = Math.ceil(expDate.getDate() / 7);
-            if (!weeks[weekNum]) weeks[weekNum] = {};
-            if (!weeks[weekNum][exp.date]) weeks[weekNum][exp.date] = [];
-            weeks[weekNum][exp.date].push(exp);
+            const d = new Date(exp.date);
+            const w = Math.ceil(d.getDate() / 7);
+            if (!weeks[w]) weeks[w] = {};
+            if (!weeks[w][exp.date]) weeks[w][exp.date] = [];
+            weeks[w][exp.date].push(exp);
         });
 
-        const weekNumbersInData = Object.keys(weeks).map(Number);
-        const maxWeek = Math.max(currentWeekNum, ...weekNumbersInData, 1);
-
+        const currentWeekNum = Math.ceil(now.getDate() / 7);
+        const maxWeek = Math.max(currentWeekNum, ...Object.keys(weeks).map(Number), 1);
         const monthContainer = document.getElementById('monthContainer');
-        let html = '';
+        monthContainer.innerHTML = '';
 
         for (let w = maxWeek; w >= 1; w--) {
             const weekDays = weeks[w] || {};
-            const hasExpenses = Object.keys(weekDays).length > 0;
             const isCurrentWeek = (w === currentWeekNum);
-
-            if (!isCurrentWeek && !hasExpenses) {
-                continue;
-            }
+            if (!isCurrentWeek && Object.keys(weekDays).length === 0) continue;
 
             let weeklyTotal = 0;
-            
-            Object.values(weekDays).forEach(dailyList => {
-                weeklyTotal += dailyList.reduce((sum, exp) => sum + exp.amount, 0);
-            });
-
+            Object.values(weekDays).forEach(list => list.forEach(e => weeklyTotal += e.amount));
             const remaining = weeklyBudget - weeklyTotal;
-            const remainingColor = remaining < 0 ? 'red' : 'green';
-            
-            const displayStyle = isCurrentWeek ? 'block' : 'none';
-            const arrowIcon = isCurrentWeek ? '&#9660;' : '&#9654;';
 
-            html += `
+            // REBALANCING LOGIC: 
+            // Calculate limit for the rest of the week based on what is left
+            const dynamicDailyLimit = Math.max(0, Math.round(remaining / daysLeftInWeek));
+
+            let html = `
                 <div class="week-card">
                     <div class="week-header" onclick="toggleWeek(${w})">
-                        <h3 class="week-title">WEEK ${w} <span id="arrow-${w}" class="arrow">${arrowIcon}</span></h3>
+                        <h3 class="week-title">WEEK ${w} <span id="arrow-${w}" class="arrow">${isCurrentWeek ? '&#9660;' : '&#9654;'}</span></h3>
                         <div style="text-align: right;">
-                            <div class="muted" style="font-size: 11px; margin-bottom: 2px;">LEFT</div>
-                            <div class="week-remaining ${remainingColor}">${formatINR(remaining)}</div>
+                            <div class="muted" style="font-size: 11px;">LEFT</div>
+                            <div class="week-remaining ${remaining < 0 ? 'red' : 'green'}">${formatINR(remaining)}</div>
                         </div>
                     </div>
-                    <div id="week-content-${w}" style="display: ${displayStyle}; padding-bottom: 10px;">
+                    <div id="week-content-${w}" style="display: ${isCurrentWeek ? 'block' : 'none'}; padding-bottom: 10px;">
             `;
 
             if (isCurrentWeek) {
-                 const spentColor = weeklyTotal > weeklyBudget ? 'red' : 'text-main';
                  html += `
                     <div class="week-summary">
-                        <span class="week-summary-label">Spent this week</span>
-                        <span class="week-summary-val ${spentColor}">${formatINR(weeklyTotal)}</span>
+                        <span class="week-summary-label">Safe to spend per day:</span>
+                        <span class="week-summary-val green">${formatINR(dynamicDailyLimit)}</span>
                     </div>
                  `;
             }
 
             const sortedDates = Object.keys(weekDays).sort((a,b) => new Date(b) - new Date(a));
-            
-            if (sortedDates.length === 0) {
-                html += `<p style="text-align:center; color: var(--text-muted); font-size: 14px; margin: 20px 0;">No expenses yet.</p>`;
-            } else {
-                sortedDates.forEach(date => {
-                    const dailyList = weekDays[date];
-                    const dailyTotal = dailyList.reduce((sum, exp) => sum + exp.amount, 0);
-                    const isOverDaily = dailyTotal > dailyLimit;
+            sortedDates.forEach(date => {
+                const dayTotal = weekDays[date].reduce((s, e) => s + e.amount, 0);
+                // We compare against the standard daily limit for history, 
+                // but today's header shows the rebalanced limit
+                const limitToCompare = (date === todayStr) ? dynamicDailyLimit : Math.round(weeklyBudget / 7);
 
-                    html += `
-                        <div class="day-group">
-                            <div class="day-header">
-                                <span class="day-date">${formatCleanDate(date)}</span>
-                                <span class="day-meta ${isOverDaily ? 'red' : 'text-main'}">
-                                    ${formatINR(dailyTotal)} <span class="limit">/ ${formatINR(dailyLimit)} limit</span>
-                                </span>
-                            </div>
-                            <ul class="expense-list">
-                    `;
-
-                    dailyList.forEach(exp => {
-                        html += `
-                            <li class="expense-item" onclick="openEditModal(${exp.id})">
-                                <span class="expense-name">${exp.name}</span> 
-                                <span class="expense-amt muted">${formatINR(exp.amount)}</span>
-                            </li>`;
-                    });
-
-                    html += `</ul></div>`;
+                html += `
+                    <div class="day-group">
+                        <div class="day-header">
+                            <span class="day-date">${formatCleanDate(date)}</span>
+                            <span class="day-meta ${dayTotal > limitToCompare ? 'red' : 'text-main'}">
+                                ${formatINR(dayTotal)} <span class="limit">/ ${formatINR(limitToCompare)} limit</span>
+                            </span>
+                        </div>
+                        <ul class="expense-list">
+                `;
+                weekDays[date].forEach(exp => {
+                    html += `<li class="expense-item" onclick="openEditModal(${exp.id})">
+                        <span class="expense-name">${exp.name}</span> 
+                        <span class="expense-amt muted">${formatINR(exp.amount)}</span>
+                    </li>`;
                 });
-            }
-
+                html += `</ul></div>`;
+            });
             html += `</div></div>`;
+            monthContainer.innerHTML += html;
         }
-
-        monthContainer.innerHTML = html;
     }
-
     updateUI();
 </script>
 
