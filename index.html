@@ -6,15 +6,14 @@
     <title>My Budget Tracker</title>
     <style>
         :root {
-            /* Modern, softer UI Color Palette */
             --bg: #f8fafc;
             --surface: #ffffff;
             --primary: #3b82f6;
             --text-main: #0f172a;
             --text-muted: #64748b;
-            --danger: #e11d48; /* Softer, elegant red */
+            --danger: #e11d48; 
             --danger-bg: #fff1f2;
-            --success: #059669; /* Elegant green */
+            --success: #059669; 
             --success-bg: #ecfdf5;
             --border: #e2e8f0;
             --keypad-bg: #f1f5f9;
@@ -24,11 +23,9 @@
         body { background-color: var(--bg); color: var(--text-main); margin: 0; padding: 15px; padding-bottom: 90px; }
         .container { max-width: 400px; margin: 0 auto; }
         
-        /* Sleek Cards */
         .card { background: var(--surface); padding: 24px 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px; }
         h1, h2, h3 { margin-top: 0; }
         
-        /* Modern Inputs & Buttons */
         input, button { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; transition: all 0.2s; }
         input::placeholder { color: #94a3b8; }
         input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
@@ -37,7 +34,6 @@
         
         .calc-input { background-color: #f8fafc; cursor: pointer; caret-color: transparent; font-weight: 500;}
 
-        /* Typography Hierarchy */
         .header-main { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border);}
         .header-main h2 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;}
         .header-main .total-budget { font-size: 18px; color: var(--text-muted); font-weight: 600; }
@@ -46,22 +42,19 @@
         .green { color: var(--success); }
         .muted { color: var(--text-muted); font-size: 14px; font-weight: 400; }
         
-        /* Redesigned Expense List (No harsh lines) */
         .expense-list { list-style: none; padding: 0; margin: 0; }
-        .expense-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 10px; border-bottom: 1px dashed var(--border); cursor: pointer; border-radius: 8px; transition: background 0.2s;}
+        .expense-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px dashed var(--border); cursor: pointer; border-radius: 8px; transition: background 0.2s;}
         .expense-item:last-child { border-bottom: none; }
         .expense-item:active { background-color: #f1f5f9; }
         .expense-name { font-weight: 500; font-size: 16px; }
         .expense-amt { font-weight: 600; font-size: 16px; }
         
-        /* Redesigned Day Groups */
         .day-group { margin-top: 20px; padding-top: 5px; }
-        .day-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; padding: 0 5px; }
-        .day-date { font-size: 15px; font-weight: 700; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.5px; }
+        .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 16px; }
+        .day-date { font-size: 13px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; background: #f1f5f9; padding: 4px 10px; border-radius: 8px; }
         .day-meta { font-size: 14px; font-weight: 600; }
         .day-meta .limit { color: var(--text-muted); font-weight: 400; font-size: 13px; }
         
-        /* Redesigned Week Accordions */
         .week-card { margin-bottom: 12px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface); }
         .week-header { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 16px; cursor: pointer; transition: background 0.2s; }
         .week-header:active { background: #f1f5f9; }
@@ -69,12 +62,10 @@
         .arrow { font-size: 10px; margin-left: 10px; transition: transform 0.3s; }
         .week-remaining { font-size: 18px; font-weight: 700; }
         
-        /* Week Content Summary Box */
-        .week-summary { background: var(--bg); border-radius: 8px; padding: 12px 16px; margin: 10px 10px 20px 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
+        .week-summary { background: var(--bg); border-radius: 8px; padding: 12px 16px; margin: 12px 16px 20px 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
         .week-summary-label { color: var(--text-muted); font-size: 14px; font-weight: 500; }
         .week-summary-val { font-size: 16px; font-weight: 700; }
 
-        /* Navigation & Modals remain mostly similar but updated colors */
         .view { display: none; animation: fadeIn 0.3s ease; }
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -89,8 +80,7 @@
         .modal-actions { display: flex; gap: 12px; margin-top: 16px; }
         .btn-cancel { background: white; color: var(--text-main); border: 1px solid var(--border); }
 
-        /* Sleeker Keypad */
-        .keypad-container { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--keypad-bg); z-index: 30; padding: 15px 15px 35px 15px; box-shadow: 0 -10px 25px rgba(0,0,0,0.05); max-width: 400px; margin: 0 auto; border-top-left-radius: 24px; border-top-right-radius: 24px; }
+        .keypad-container { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--keypad-bg); z-index: 30; padding: 15px 15px calc(15px + env(safe-area-inset-bottom)) 15px; box-shadow: 0 -10px 25px rgba(0,0,0,0.05); max-width: 400px; margin: 0 auto; border-top-left-radius: 24px; border-top-right-radius: 24px; }
         .keypad-container.active { display: block; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
@@ -110,7 +100,7 @@
         <div class="card" style="background: transparent; box-shadow: none; padding: 0;">
             <div class="header-main">
                 <h2>Overview</h2>
-                <div class="total-budget">Budget: <span id="monthlyBudgetDisplayMain">₹0</span></div>
+                <div class="total-budget">Left: <span id="monthlyBudgetDisplayMain">₹0</span></div>
             </div>
             <div id="monthContainer"></div>
         </div>
@@ -228,12 +218,22 @@
         kp('='); 
         document.getElementById('keypad').classList.remove('active');
         
+        // --- TWO-WAY SYNC LOGIC ---
         if(activeInputId === 'monthlyBudgetInput') {
             const mVal = parseFloat(document.getElementById('monthlyBudgetInput').value);
             if(!isNaN(mVal)) {
+                // Monthly to Weekly (Divide by 4)
                 document.getElementById('weeklyBudgetInput').value = Math.round(mVal / 4);
             }
+        } 
+        else if(activeInputId === 'weeklyBudgetInput') {
+            const wVal = parseFloat(document.getElementById('weeklyBudgetInput').value);
+            if(!isNaN(wVal)) {
+                // Weekly to Monthly (Multiply by 4)
+                document.getElementById('monthlyBudgetInput').value = Math.round(wVal * 4);
+            }
         }
+        
         activeInputId = null;
     }
 
@@ -304,16 +304,13 @@
         }
     }
 
-    // Drop the decimals for cleaner UI. Use Math.round for display.
     function formatINR(amount) { 
-        // Handle negative formatting cleanly (e.g., -₹500 instead of ₹-500)
         const isNegative = amount < 0;
         const absAmount = Math.abs(Math.round(amount));
         const formattedStr = absAmount.toLocaleString('en-IN');
         return (isNegative ? '-' : '') + '₹' + formattedStr; 
     }
     
-    // Clean, modern date without the year (e.g., "Mar 09")
     function formatCleanDate(dateString) {
         if (!dateString) return '';
         const parts = dateString.split('-');
@@ -329,11 +326,11 @@
         const arrow = document.getElementById(`arrow-${w}`);
         if (content.style.display === 'none') {
             content.style.display = 'block';
-            arrow.innerHTML = '&#9660;'; // Down arrow
+            arrow.innerHTML = '&#9660;'; 
             arrow.style.transform = "rotate(0deg)";
         } else {
             content.style.display = 'none';
-            arrow.innerHTML = '&#9654;'; // Right arrow
+            arrow.innerHTML = '&#9654;'; 
         }
     };
 
@@ -385,10 +382,8 @@
         document.getElementById('monthlyBudgetInput').value = monthlyBudget || '';
         document.getElementById('weeklyBudgetInput').value = weeklyBudget || '';
         
-        // Remove decimals from daily limit for lower cognitive load
         const dailyLimit = Math.round(weeklyBudget / 7);
         document.getElementById('dailyLimitDisplay').innerText = formatINR(dailyLimit);
-        document.getElementById('monthlyBudgetDisplayMain').innerText = formatINR(monthlyBudget);
 
         const now = new Date();
         const currentMonth = now.getMonth();
@@ -399,6 +394,16 @@
             const expDate = new Date(exp.date);
             return expDate.getMonth() === currentMonth && expDate.getFullYear() === currentYear;
         });
+
+        let monthlyTotalSpent = 0;
+        thisMonthExpenses.forEach(exp => {
+            monthlyTotalSpent += exp.amount;
+        });
+        
+        const monthlyRemaining = monthlyBudget - monthlyTotalSpent;
+        const monthlyRemainingEl = document.getElementById('monthlyBudgetDisplayMain');
+        monthlyRemainingEl.innerText = formatINR(monthlyRemaining);
+        monthlyRemainingEl.className = monthlyRemaining < 0 ? 'red' : '';
 
         const weeks = {};
         thisMonthExpenses.forEach(exp => {
@@ -417,6 +422,13 @@
 
         for (let w = maxWeek; w >= 1; w--) {
             const weekDays = weeks[w] || {};
+            const hasExpenses = Object.keys(weekDays).length > 0;
+            const isCurrentWeek = (w === currentWeekNum);
+
+            if (!isCurrentWeek && !hasExpenses) {
+                continue;
+            }
+
             let weeklyTotal = 0;
             
             Object.values(weekDays).forEach(dailyList => {
@@ -425,7 +437,6 @@
 
             const remaining = weeklyBudget - weeklyTotal;
             const remainingColor = remaining < 0 ? 'red' : 'green';
-            const isCurrentWeek = (w === currentWeekNum);
             
             const displayStyle = isCurrentWeek ? 'block' : 'none';
             const arrowIcon = isCurrentWeek ? '&#9660;' : '&#9654;';
@@ -446,7 +457,7 @@
                  const spentColor = weeklyTotal > weeklyBudget ? 'red' : 'text-main';
                  html += `
                     <div class="week-summary">
-                        <span class="week-summary-label">Total spent this week</span>
+                        <span class="week-summary-label">Spent this week</span>
                         <span class="week-summary-val ${spentColor}">${formatINR(weeklyTotal)}</span>
                     </div>
                  `;
@@ -462,7 +473,6 @@
                     const dailyTotal = dailyList.reduce((sum, exp) => sum + exp.amount, 0);
                     const isOverDaily = dailyTotal > dailyLimit;
 
-                    // Cleaned up Day Header
                     html += `
                         <div class="day-group">
                             <div class="day-header">
