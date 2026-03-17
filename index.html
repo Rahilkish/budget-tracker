@@ -24,7 +24,6 @@
         .card { background: var(--surface); padding: 24px 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px; }
         h1, h2, h3 { margin-top: 0; }
         
-        /* Redesigned Clickable Main Header */
         .header-main { background: var(--surface); padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px; cursor: pointer; transition: background 0.2s;}
         .header-main:active { background: #f1f5f9; }
         .header-top { display: flex; justify-content: space-between; align-items: center; }
@@ -32,7 +31,6 @@
         .header-top .total-budget { font-size: 18px; color: var(--text-main); font-weight: 700; }
         .header-arrow { font-size: 12px; color: var(--text-muted); transition: transform 0.3s; }
         
-        /* The Hidden Details Dropdown */
         .month-details { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border); font-size: 14px; color: var(--text-muted); }
         .month-details-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
 
@@ -45,21 +43,39 @@
         .muted { color: var(--text-muted); font-size: 14px; }
         
         .expense-list { list-style: none; padding: 0; margin: 0; }
-        .expense-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px dashed var(--border); cursor: pointer; border-radius: 8px; }
+        /* Adjusted padding to sit perfectly inside the new Day Blocks */
+        .expense-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed #cbd5e1; cursor: pointer; }
+        .expense-item:last-child { border-bottom: none; padding-bottom: 0; }
         
-        .day-group { margin-top: 20px; }
-        .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 16px; }
-        .day-date { font-size: 13px; font-weight: 700; color: #475569; text-transform: uppercase; background: #f1f5f9; padding: 4px 10px; border-radius: 8px; }
+        /* THE NEW "INSET BLOCK" DAY DESIGN */
+        .day-group { 
+            background: #f8fafc; /* Soft gray background */
+            border: 1px solid var(--border); 
+            border-radius: 16px; 
+            padding: 16px; 
+            margin: 0 16px 16px 16px; 
+        }
+        .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .day-date { 
+            font-size: 12px; 
+            font-weight: 800; 
+            color: #475569; 
+            text-transform: uppercase; 
+            background: #ffffff; /* Crisp white badge */
+            border: 1px solid var(--border);
+            padding: 6px 10px; 
+            border-radius: 8px; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
         .day-meta { font-size: 15px; font-weight: 700; }
-        .day-meta .limit { color: var(--text-muted); font-weight: 400; font-size: 13px; margin-left: 2px; }
+        .day-meta .limit { color: var(--text-muted); font-weight: 500; font-size: 13px; margin-left: 2px; }
         
-        .week-card { margin-bottom: 12px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface); }
-        .week-header { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 16px; cursor: pointer; }
+        .week-card { margin-bottom: 12px; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--surface); box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
+        .week-header { display: flex; justify-content: space-between; align-items: center; padding: 16px; cursor: pointer; }
         .week-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-muted); }
         .week-remaining { font-size: 18px; font-weight: 700; }
         
-        /* Redesigned, Text-Free Week Summary */
-        .week-summary { background: var(--bg); border-radius: 8px; padding: 12px 16px; margin: 12px 16px 20px 16px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;}
+        .week-summary { background: var(--bg); border-radius: 8px; padding: 12px 16px; margin: 0 16px 20px 16px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;}
         
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 12px 10px 25px 10px; border-top: 1px solid var(--border); z-index: 10; max-width: 400px; margin: 0 auto; }
         .nav-btn { background: none; color: var(--text-muted); border: none; font-size: 13px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; }
@@ -83,7 +99,6 @@
 
 <div class="container">
     <div id="view-home" class="view" style="display:block;">
-        
         <div class="header-main" onclick="toggleMonthDetails()">
             <div class="header-top">
                 <h2>Overview <span id="monthArrow" class="header-arrow">&#9660;</span></h2>
@@ -240,7 +255,6 @@
         const totalSpent = thisMonthExps.reduce((s, e) => s + e.amount, 0);
         const remainingMonth = monthlyBudget - totalSpent;
         
-        // Update Main Headers
         const mainDisplay = document.getElementById('monthlyBudgetDisplayMain');
         mainDisplay.innerText = formatINR(remainingMonth);
         mainDisplay.className = remainingMonth < 0 ? 'red' : 'green';
@@ -259,7 +273,6 @@
             weeks[w].days[e.date].push(e);
         });
 
-        // ROLLOVER LOGIC
         let totalRollover = 0;
         for (let i = 1; i < curWNum; i++) {
             const spent = weeks[i] ? weeks[i].total : 0;
@@ -282,7 +295,7 @@
             const budgetForThisWeek = isCurrent ? currentWeekBudget : baseWeekly;
             const remaining = budgetForThisWeek - spent;
 
-            let safeDaily = baseWeekly / 7; // Fallback for past weeks
+            let safeDaily = baseWeekly / 7;
 
             let html = `
                 <div class="week-card">
@@ -301,7 +314,6 @@
                 const daysLeftInW = Math.max(1, (7 - dayOfW) + 1);
                 safeDaily = Math.max(0, remaining / daysLeftInW); 
                 
-                // HYPER-CLEAN SUMMARY ROW (No extra text, just numbers and colors)
                 html += `
                 <div class="week-summary">
                     <div style="display:flex; align-items:center; gap:8px;">
