@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Broke No More</title>
+    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#f8fafc">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Broke No More">
     <link rel="apple-touch-icon" href="icon.png">
+
     <style>
         :root {
             --bg: #f8fafc;
@@ -43,7 +44,8 @@
         .month-details-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
 
         input, button { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; }
-        button { background: var(--text-main); color: white; border: none; font-weight: 600; cursor: pointer; }
+        button { background: var(--text-main); color: white; border: none; font-weight: 600; cursor: pointer; transition: transform 0.1s;}
+        button:active { transform: scale(0.98); }
         .calc-input { background-color: #f8fafc; cursor: pointer; caret-color: transparent; font-weight: 500; color: var(--text-main);}
 
         .red { color: var(--danger); }
@@ -108,6 +110,28 @@
     </style>
 </head>
 <body>
+
+<div id="installModal" class="modal-overlay" style="z-index: 60;">
+    <div class="modal-content" style="text-align: center;">
+        <button class="close-x" onclick="closeInstallPrompt()">✕</button>
+        <h2 style="margin-top: 0; margin-bottom: 16px; font-size: 22px;">Get the App! 📱</h2>
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.4;">
+            For the best experience, install <b>Broke No More</b> directly to your phone. It works offline and hides the browser bar!
+        </p>
+        
+        <div id="install-ios" style="display:none; background: #f8fafc; padding: 16px; border-radius: 12px; text-align: left; border: 1px solid var(--border);">
+            <div style="margin-bottom: 12px; font-size: 14px; color: var(--text-main);"><b>1.</b> Tap the <b>Share</b> button <span style="font-size:18px;">🔗</span> at the bottom of Safari.</div>
+            <div style="font-size: 14px; color: var(--text-main);"><b>2.</b> Scroll down and tap <b>Add to Home Screen</b> <span style="font-size:18px;">➕</span>.</div>
+        </div>
+
+        <div id="install-android" style="display:none; background: #f8fafc; padding: 16px; border-radius: 12px; text-align: left; border: 1px solid var(--border);">
+            <div style="margin-bottom: 12px; font-size: 14px; color: var(--text-main);"><b>1.</b> Tap the <b>Menu</b> button <span style="font-size:18px;">⋮</span> at the top of Chrome.</div>
+            <div style="font-size: 14px; color: var(--text-main);"><b>2.</b> Tap <b>Install App</b> or <b>Add to Home screen</b> <span style="font-size:18px;">📱</span>.</div>
+        </div>
+
+        <button onclick="closeInstallPrompt()" style="background: white; color: var(--text-main); border: 2px solid var(--border); margin-top: 20px;">I'll do it later</button>
+    </div>
+</div>
 
 <div id="welcomeModal" class="modal-overlay">
     <div class="modal-content">
@@ -247,12 +271,34 @@
     let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
     document.getElementById('expenseDate').valueAsDate = new Date();
 
-    // TUTORIAL LOGIC
+    // ONBOARDING LOGIC (Install Prompt -> Tutorial)
     document.addEventListener("DOMContentLoaded", () => {
-        if (!localStorage.getItem('tutorialSeen')) {
+        // Detect if app is running as a real standalone app
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        
+        if (!isStandalone && !localStorage.getItem('installDismissed')) {
+            document.getElementById('installModal').classList.add('active');
+            
+            // Detect OS to show correct instructions
+            const userAgent = window.navigator.userAgent.toLowerCase();
+            if (/iphone|ipad|ipod/.test(userAgent)) {
+                document.getElementById('install-ios').style.display = 'block';
+            } else {
+                document.getElementById('install-android').style.display = 'block';
+            }
+        } else if (!localStorage.getItem('tutorialSeen')) {
             document.getElementById('welcomeModal').classList.add('active');
         }
     });
+
+    function closeInstallPrompt() {
+        localStorage.setItem('installDismissed', 'true');
+        document.getElementById('installModal').classList.remove('active');
+        
+        if (!localStorage.getItem('tutorialSeen')) {
+            document.getElementById('welcomeModal').classList.add('active');
+        }
+    }
 
     function closeTutorial() {
         localStorage.setItem('tutorialSeen', 'true');
