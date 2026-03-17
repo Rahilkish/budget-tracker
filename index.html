@@ -76,14 +76,23 @@
         .modal-overlay.active { display: flex; }
         .modal-content { background: var(--surface); width: 100%; max-width: 340px; border-radius: 20px; padding: 24px; }
 
+        /* Shared Grid Layout for Keypads */
+        .keypad-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        
+        /* Modal Keypad (Settings/Edit) */
         .keypad-container { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--keypad-bg); z-index: 30; padding: 15px 15px calc(15px + env(safe-area-inset-bottom)) 15px; max-width: 400px; margin: 0 auto; border-top-left-radius: 24px; border-top-right-radius: 24px; }
         .keypad-container.active { display: block; }
         .keypad-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: white; padding: 12px 20px; border-radius: 12px; font-size: 24px; font-weight: 700; min-height: 56px; color: var(--text-main); }
-        .keypad-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         .keypad-btn { background: white; border: 1px solid var(--border); border-radius: 12px; font-size: 22px; padding: 16px 0; font-weight: 700; color: var(--text-main); cursor: pointer; }
         .keypad-btn:active { background: #e2e8f0; }
         .keypad-btn.op { background: #e0f2fe; color: var(--primary); }
         .keypad-btn.action { background: var(--primary); color: white; border: none; }
+
+        /* Inline Keypad Specific Styles */
+        .inline-keypad-btn { background: white; border: 1px solid var(--border); border-radius: 10px; font-size: 20px; padding: 12px 0; font-weight: 700; color: var(--text-main); cursor: pointer; }
+        .inline-keypad-btn:active { background: #e2e8f0; }
+        .inline-keypad-btn.op { background: #e0f2fe; color: var(--primary); }
+        .inline-keypad-btn.action { background: var(--primary); color: white; border: none; }
     </style>
 </head>
 <body>
@@ -102,12 +111,39 @@
     </div>
 
     <div id="view-add" class="view" style="display:none;">
-        <div class="card">
-            <h2>Add Expense</h2>
-            <input type="text" id="expenseName" placeholder="Item Name">
-            <input type="text" id="expenseAmount" class="calc-input" readonly placeholder="Amount" onclick="openKeypad('expenseAmount')">
+        <div class="card" style="padding-bottom: 16px;">
+            <h2 style="margin-bottom: 16px;">Add Expense</h2>
+            <input type="text" id="expenseName" placeholder="What did you buy?">
             <input type="date" id="expenseDate">
-            <button onclick="addExpense()" style="background: var(--primary);">Save</button>
+            
+            <input type="text" id="expenseAmount" readonly placeholder="₹0" style="width: 100%; font-size: 28px; text-align: right; padding: 16px 20px; background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 12px; margin-bottom: 16px; color: var(--primary); font-weight: 800; outline: none; caret-color: transparent;">
+            
+            <div class="keypad-grid">
+                <button class="inline-keypad-btn" onclick="inlineKp('7')">7</button>
+                <button class="inline-keypad-btn" onclick="inlineKp('8')">8</button>
+                <button class="inline-keypad-btn" onclick="inlineKp('9')">9</button>
+                <button class="inline-keypad-btn op" onclick="inlineKp('/')">÷</button>
+                
+                <button class="inline-keypad-btn" onclick="inlineKp('4')">4</button>
+                <button class="inline-keypad-btn" onclick="inlineKp('5')">5</button>
+                <button class="inline-keypad-btn" onclick="inlineKp('6')">6</button>
+                <button class="inline-keypad-btn op" onclick="inlineKp('*')">×</button>
+                
+                <button class="inline-keypad-btn" onclick="inlineKp('1')">1</button>
+                <button class="inline-keypad-btn" onclick="inlineKp('2')">2</button>
+                <button class="inline-keypad-btn" onclick="inlineKp('3')">3</button>
+                <button class="inline-keypad-btn op" onclick="inlineKp('-')">−</button>
+                
+                <button class="inline-keypad-btn op" onclick="inlineKp('C')">C</button>
+                <button class="inline-keypad-btn" onclick="inlineKp('0')">0</button>
+                <button class="inline-keypad-btn" onclick="inlineKp('.')">.</button>
+                <button class="inline-keypad-btn op" onclick="inlineKp('+')">+</button>
+                
+                <button class="inline-keypad-btn op" style="grid-column: span 2;" onclick="inlineKp('del')">⌫</button>
+                <button class="inline-keypad-btn action" style="grid-column: span 2;" onclick="inlineKp('=')">=</button>
+            </div>
+            
+            <button onclick="addExpense()" style="background: var(--primary); margin-top: 16px; padding: 16px; font-size: 18px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">Save Expense</button>
         </div>
     </div>
 
@@ -164,6 +200,7 @@
     let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
     document.getElementById('expenseDate').valueAsDate = new Date();
 
+    // POPUP KEYPAD LOGIC (Settings / Edit)
     let activeInputId = null;
     function openKeypad(id) { 
         activeInputId = id; 
@@ -178,6 +215,20 @@
         else if (v === '=') { try { d.innerText = eval(d.innerText.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-')) || ''; } catch(e){} }
         else d.innerText += (v==='*')?'×':(v==='/')?'÷':(v==='-')?'−':v;
         if(activeInputId) document.getElementById(activeInputId).value = d.innerText;
+    }
+
+    // NEW INLINE KEYPAD LOGIC (Add Expense Tab)
+    function inlineKp(v) {
+        const d = document.getElementById('expenseAmount');
+        if (v === 'C') d.value = '';
+        else if (v === 'del') d.value = d.value.slice(0, -1);
+        else if (v === '=') { 
+            try { 
+                let res = eval(d.value.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-')); 
+                d.value = res ? Math.round(res * 100) / 100 : '';
+            } catch(e){} 
+        }
+        else d.value += (v==='*')?'×':(v==='/')?'÷':(v==='-')?'−':v;
     }
 
     function switchTab(id, btn) {
@@ -208,11 +259,22 @@
     }
 
     function addExpense() {
-        kp('='); const n = document.getElementById('expenseName').value, a = parseFloat(document.getElementById('expenseAmount').value), d = document.getElementById('expenseDate').value;
+        inlineKp('='); // Ensure any pending math is calculated first
+        const n = document.getElementById('expenseName').value;
+        const a = parseFloat(document.getElementById('expenseAmount').value);
+        const d = document.getElementById('expenseDate').value;
+        
         if(!n || isNaN(a) || !d) return alert("Please fill all fields");
+        
         expenses.push({ id: Date.now(), name: n, amount: a, date: d });
         localStorage.setItem('expenses', JSON.stringify(expenses));
-        updateUI(); switchTab('view-home', document.querySelector('.nav-btn'));
+        updateUI(); 
+        
+        // Reset form
+        document.getElementById('expenseName').value = '';
+        document.getElementById('expenseAmount').value = '';
+        
+        switchTab('view-home', document.querySelector('.nav-btn'));
     }
 
     function openEditModal(id) {
@@ -258,7 +320,6 @@
         mainDisplay.innerText = formatINR(remainingMonth);
         mainDisplay.className = remainingMonth < 0 ? 'red' : 'green';
         
-        // Populate the Dropdown Details dynamically
         let detailsHtml = `<div class="month-details-row"><span>Monthly Budget:</span><span style="color:var(--text-main); font-weight:600;">${formatINR(monthlyBudget)}</span></div>`;
         if(prevSpent > 0) {
             detailsHtml += `<div class="month-details-row"><span>Spent Before App:</span><span style="color:var(--danger); font-weight:600;">${formatINR(prevSpent)}</span></div>`;
@@ -278,7 +339,6 @@
             weeks[w].days[e.date].push(e);
         });
 
-        // ROLLOVER LOGIC (Now correctly deducts the prevSpent as a past deficit)
         let loggedSpentInPastWeeks = 0;
         for (let i = 1; i < curWNum; i++) {
             loggedSpentInPastWeeks += (weeks[i] ? weeks[i].total : 0);
