@@ -12,6 +12,7 @@
             --text-main: #0f172a;
             --text-muted: #64748b;
             --danger: #e11d48; 
+            --warning: #f59e0b;
             --success: #059669; 
             --border: #e2e8f0;
             --keypad-bg: #f1f5f9;
@@ -57,8 +58,16 @@
         .week-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-muted); }
         .week-remaining { font-size: 18px; font-weight: 700; }
         
-        /* FIX: Changed the background to a soft blue to make it an "Info Banner" */
-        .week-summary { background: #eff6ff; border-radius: 12px; padding: 14px 16px; margin: 0 16px 20px 16px; border: 1px solid #bfdbfe; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.05);}
+        /* NEW ICON DASHBOARD & PROGRESS BAR STYLES */
+        .dashboard-container { padding: 4px 16px 20px 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .dashboard-stats { display: flex; justify-content: space-between; margin-bottom: 16px; text-align: center; }
+        .stat-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .stat-icon { font-size: 18px; margin-bottom: 2px; }
+        .stat-value { font-size: 15px; font-weight: 800; color: var(--text-main); }
+        .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+        
+        .progress-bg { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; width: 100%; }
+        .progress-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease, background-color 0.4s ease; }
         
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 12px 10px 25px 10px; border-top: 1px solid var(--border); z-index: 10; max-width: 400px; margin: 0 auto; }
         .nav-btn { background: none; color: var(--text-muted); border: none; font-size: 13px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; }
@@ -297,17 +306,36 @@
                 const daysLeftInW = Math.max(1, (7 - dayOfW) + 1);
                 safeDaily = Math.max(0, remaining / daysLeftInW); 
                 
+                // --- PROGRESS BAR MATH ---
+                let percentSpent = budgetForThisWeek > 0 ? (spent / budgetForThisWeek) * 100 : 0;
+                if (percentSpent > 100) percentSpent = 100;
+                if (budgetForThisWeek <= 0) percentSpent = 100; // Over budget fallback
+                
+                let progressColor = 'var(--success)';
+                if (percentSpent > 75) progressColor = 'var(--warning)';
+                if (percentSpent > 90) progressColor = 'var(--danger)';
+
                 html += `
-                <div class="week-summary">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="font-weight:700; color:var(--text-main); font-size:16px;">${formatINR(baseWeekly)}</span>
-                        <span class="${rolloverPerWeek >= 0 ? 'green' : 'red'}" style="font-size:14px; font-weight:700;">
-                            ${rolloverPerWeek >= 0 ? '+' : ''}${formatINR(rolloverPerWeek)}
-                        </span>
+                <div class="dashboard-container">
+                    <div class="dashboard-stats">
+                        <div class="stat-item">
+                            <span class="stat-icon">🏦</span>
+                            <span class="stat-value">${formatINR(baseWeekly)}</span>
+                            <span class="stat-label">Base</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">🔄</span>
+                            <span class="stat-value ${rolloverPerWeek >= 0 ? 'green' : 'red'}">${rolloverPerWeek >= 0 ? '+' : ''}${formatINR(rolloverPerWeek)}</span>
+                            <span class="stat-label">Rollover</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">🛡️</span>
+                            <span class="stat-value green">${formatINR(safeDaily)}</span>
+                            <span class="stat-label">Safe Daily</span>
+                        </div>
                     </div>
-                    <div style="text-align:right;">
-                        <div style="font-size:11px; color:var(--primary); text-transform:uppercase; font-weight:700;">Safe Daily</div>
-                        <div style="font-weight:800; color:var(--success); font-size:18px;">${formatINR(safeDaily)}</div>
+                    <div class="progress-bg">
+                        <div class="progress-fill" style="width: ${percentSpent}%; background-color: ${progressColor};"></div>
                     </div>
                 </div>`;
             }
