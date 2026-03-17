@@ -43,30 +43,12 @@
         .muted { color: var(--text-muted); font-size: 14px; }
         
         .expense-list { list-style: none; padding: 0; margin: 0; }
-        /* Adjusted padding to sit perfectly inside the new Day Blocks */
         .expense-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed #cbd5e1; cursor: pointer; }
         .expense-item:last-child { border-bottom: none; padding-bottom: 0; }
         
-        /* THE NEW "INSET BLOCK" DAY DESIGN */
-        .day-group { 
-            background: #f8fafc; /* Soft gray background */
-            border: 1px solid var(--border); 
-            border-radius: 16px; 
-            padding: 16px; 
-            margin: 0 16px 16px 16px; 
-        }
+        .day-group { background: #f8fafc; border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin: 0 16px 16px 16px; }
         .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .day-date { 
-            font-size: 12px; 
-            font-weight: 800; 
-            color: #475569; 
-            text-transform: uppercase; 
-            background: #ffffff; /* Crisp white badge */
-            border: 1px solid var(--border);
-            padding: 6px 10px; 
-            border-radius: 8px; 
-            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-        }
+        .day-date { font-size: 12px; font-weight: 800; color: #475569; text-transform: uppercase; background: #ffffff; border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);}
         .day-meta { font-size: 15px; font-weight: 700; }
         .day-meta .limit { color: var(--text-muted); font-weight: 500; font-size: 13px; margin-left: 2px; }
         
@@ -75,7 +57,8 @@
         .week-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-muted); }
         .week-remaining { font-size: 18px; font-weight: 700; }
         
-        .week-summary { background: var(--bg); border-radius: 8px; padding: 12px 16px; margin: 0 16px 20px 16px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;}
+        /* FIX: Changed the background to a soft blue to make it an "Info Banner" */
+        .week-summary { background: #eff6ff; border-radius: 12px; padding: 14px 16px; margin: 0 16px 20px 16px; border: 1px solid #bfdbfe; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.05);}
         
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 12px 10px 25px 10px; border-top: 1px solid var(--border); z-index: 10; max-width: 400px; margin: 0 auto; }
         .nav-btn { background: none; color: var(--text-muted); border: none; font-size: 13px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; }
@@ -323,8 +306,8 @@
                         </span>
                     </div>
                     <div style="text-align:right;">
-                        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Safe Daily</div>
-                        <div style="font-weight:800; color:var(--success); font-size:16px;">${formatINR(safeDaily)}</div>
+                        <div style="font-size:11px; color:var(--primary); text-transform:uppercase; font-weight:700;">Safe Daily</div>
+                        <div style="font-weight:800; color:var(--success); font-size:18px;">${formatINR(safeDaily)}</div>
                     </div>
                 </div>`;
             }
