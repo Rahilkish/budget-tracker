@@ -42,6 +42,8 @@
         .day-group { margin-top: 20px; }
         .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 16px; }
         .day-date { font-size: 13px; font-weight: 700; color: #475569; text-transform: uppercase; background: #f1f5f9; padding: 4px 10px; border-radius: 8px; }
+        .day-meta { font-size: 15px; font-weight: 700; }
+        .day-meta .limit { color: var(--text-muted); font-weight: 400; font-size: 13px; margin-left: 2px; }
         
         .week-card { margin-bottom: 12px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface); }
         .week-header { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 16px; cursor: pointer; }
@@ -59,21 +61,11 @@
         .modal-overlay.active { display: flex; }
         .modal-content { background: var(--surface); width: 100%; max-width: 340px; border-radius: 20px; padding: 24px; }
 
-        /* KEYPAD STYLING FIX */
         .keypad-container { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--keypad-bg); z-index: 30; padding: 15px 15px calc(15px + env(safe-area-inset-bottom)) 15px; max-width: 400px; margin: 0 auto; border-top-left-radius: 24px; border-top-right-radius: 24px; }
         .keypad-container.active { display: block; }
         .keypad-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: white; padding: 12px 20px; border-radius: 12px; font-size: 24px; font-weight: 700; min-height: 56px; color: var(--text-main); }
         .keypad-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .keypad-btn { 
-            background: white; 
-            border: 1px solid var(--border); 
-            border-radius: 12px; 
-            font-size: 22px; 
-            padding: 16px 0; 
-            font-weight: 700; 
-            color: var(--text-main); /* FIX: Ensures numbers are visible */
-            cursor: pointer;
-        }
+        .keypad-btn { background: white; border: 1px solid var(--border); border-radius: 12px; font-size: 22px; padding: 16px 0; font-weight: 700; color: var(--text-main); cursor: pointer; }
         .keypad-btn:active { background: #e2e8f0; }
         .keypad-btn.op { background: #e0f2fe; color: var(--primary); }
         .keypad-btn.action { background: var(--primary); color: white; border: none; }
@@ -213,7 +205,6 @@
     function updateUI() {
         const now = new Date();
         const curM = now.getMonth(), curY = now.getFullYear();
-        const lastDay = new Date(curY, curM + 1, 0).getDate();
         const dayOfMonth = now.getDate();
         const thisMonthExps = expenses.filter(e => {
             const d = new Date(e.date);
@@ -257,6 +248,8 @@
             const budgetForThisWeek = isCurrent ? currentWeekBudget : baseWeekly;
             const remaining = budgetForThisWeek - spent;
 
+            let safeDaily = baseWeekly / 7; // Fallback for past weeks
+
             let html = `
                 <div class="week-card">
                     <div class="week-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
@@ -272,7 +265,8 @@
             if (isCurrent) {
                 const dayOfW = dayOfMonth - (w-1)*7;
                 const daysLeftInW = Math.max(1, (7 - dayOfW) + 1);
-                const safeDaily = Math.max(0, remaining / daysLeftInW);
+                safeDaily = Math.max(0, remaining / daysLeftInW); // Actual dynamic safe daily limit
+                
                 html += `
                 <div class="week-summary">
                     <div class="week-summary-row"><span>Base Budget:</span><span>${formatINR(baseWeekly)}</span></div>
@@ -284,10 +278,27 @@
             const sortedDates = Object.keys(weekData ? weekData.days : {}).sort((a,b) => new Date(b) - new Date(a));
             sortedDates.forEach(date => {
                 const dTotal = weekData.days[date].reduce((s, e) => s + e.amount, 0);
-                html += `<div class="day-group"><div class="day-header"><span class="day-date">${formatCleanDate(date)}</span><span class="day-meta">${formatINR(dTotal)}</span></div><ul class="expense-list">`;
+                
+                // Compare today against the dynamic limit, past days against standard limit
+                const limitToCompare = isCurrent ? safeDaily : (baseWeekly / 7);
+                const isOver = dTotal > limitToCompare;
+
+                html += `
+                    <div class="day-group">
+                        <div class="day-header">
+                            <span class="day-date">${formatCleanDate(date)}</span>
+                            <span class="day-meta ${isOver ? 'red' : ''}">
+                                ${formatINR(dTotal)} 
+                                <span class="limit">/ ${formatINR(limitToCompare)}</span>
+                            </span>
+                        </div>
+                        <ul class="expense-list">
+                `;
+                
                 weekData.days[date].forEach(exp => {
                     html += `<li class="expense-item" onclick="openEditModal(${exp.id})"><span>${exp.name}</span><span class="muted">${formatINR(exp.amount)}</span></li>`;
                 });
+                
                 html += `</ul></div>`;
             });
 
