@@ -58,7 +58,6 @@
         .week-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-muted); }
         .week-remaining { font-size: 18px; font-weight: 700; }
         
-        /* NEW ICON DASHBOARD & PROGRESS BAR STYLES */
         .dashboard-container { padding: 4px 16px 20px 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
         .dashboard-stats { display: flex; justify-content: space-between; margin-bottom: 16px; text-align: center; }
         .stat-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
@@ -96,10 +95,7 @@
                 <h2>Overview <span id="monthArrow" class="header-arrow">&#9660;</span></h2>
                 <div class="total-budget">Left: <span id="monthlyBudgetDisplayMain" class="green">₹0</span></div>
             </div>
-            <div id="monthDetails" class="month-details">
-                <div class="month-details-row"><span>Monthly Budget:</span><span id="detailBudget" style="color:var(--text-main); font-weight:600;">₹0</span></div>
-                <div class="month-details-row"><span>Total Spent:</span><span id="detailSpent" style="color:var(--text-main); font-weight:600;">₹0</span></div>
-            </div>
+            <div id="monthDetails" class="month-details"></div>
         </div>
 
         <div id="monthContainer"></div>
@@ -120,7 +116,11 @@
             <h2>Setup</h2>
             <label style="font-size:14px; font-weight:600;">Monthly Budget</label>
             <input type="text" id="monthlyBudgetInput" class="calc-input" readonly onclick="openKeypad('monthlyBudgetInput')">
-            <button onclick="saveBudget()">Save</button>
+            
+            <label style="font-size:14px; font-weight:600; margin-top:16px; display:block;">Already Spent (Before App)</label>
+            <input type="text" id="prevSpentInput" class="calc-input" readonly onclick="openKeypad('prevSpentInput')" placeholder="₹0">
+            
+            <button onclick="saveBudget()" style="margin-top:24px;">Save Settings</button>
             <button onclick="clearAllData()" style="background: var(--danger); margin-top:20px;">Reset All Data</button>
         </div>
     </div>
@@ -160,6 +160,7 @@
 
 <script>
     let monthlyBudget = parseFloat(localStorage.getItem('monthlyBudget')) || 0;
+    let prevSpent = parseFloat(localStorage.getItem('prevSpent')) || 0;
     let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
     document.getElementById('expenseDate').valueAsDate = new Date();
 
@@ -200,7 +201,9 @@
 
     function saveBudget() { 
         monthlyBudget = parseFloat(document.getElementById('monthlyBudgetInput').value) || 0;
+        prevSpent = parseFloat(document.getElementById('prevSpentInput').value) || 0;
         localStorage.setItem('monthlyBudget', monthlyBudget);
+        localStorage.setItem('prevSpent', prevSpent);
         updateUI(); switchTab('view-home', document.querySelector('.nav-btn'));
     }
 
@@ -236,6 +239,9 @@
     function clearAllData() { if(confirm("Reset everything?")) { localStorage.clear(); location.reload(); } }
 
     function updateUI() {
+        document.getElementById('monthlyBudgetInput').value = monthlyBudget || '';
+        document.getElementById('prevSpentInput').value = prevSpent || '';
+
         const now = new Date();
         const curM = now.getMonth(), curY = now.getFullYear();
         const dayOfMonth = now.getDate();
@@ -244,15 +250,22 @@
             return d.getMonth() === curM && d.getFullYear() === curY;
         });
 
-        const totalSpent = thisMonthExps.reduce((s, e) => s + e.amount, 0);
-        const remainingMonth = monthlyBudget - totalSpent;
+        const totalLoggedSpent = thisMonthExps.reduce((s, e) => s + e.amount, 0);
+        const totalSpentAll = totalLoggedSpent + prevSpent;
+        const remainingMonth = monthlyBudget - totalSpentAll;
         
         const mainDisplay = document.getElementById('monthlyBudgetDisplayMain');
         mainDisplay.innerText = formatINR(remainingMonth);
         mainDisplay.className = remainingMonth < 0 ? 'red' : 'green';
         
-        document.getElementById('detailBudget').innerText = formatINR(monthlyBudget);
-        document.getElementById('detailSpent').innerText = formatINR(totalSpent);
+        // Populate the Dropdown Details dynamically
+        let detailsHtml = `<div class="month-details-row"><span>Monthly Budget:</span><span style="color:var(--text-main); font-weight:600;">${formatINR(monthlyBudget)}</span></div>`;
+        if(prevSpent > 0) {
+            detailsHtml += `<div class="month-details-row"><span>Spent Before App:</span><span style="color:var(--danger); font-weight:600;">${formatINR(prevSpent)}</span></div>`;
+        }
+        detailsHtml += `<div class="month-details-row"><span>App Expenses:</span><span style="color:var(--text-main); font-weight:600;">${formatINR(totalLoggedSpent)}</span></div>`;
+        detailsHtml += `<div class="month-details-row" style="border-top:1px solid #e2e8f0; margin-top:4px; padding-top:6px;"><span>Total Spent:</span><span style="color:var(--text-main); font-weight:800;">${formatINR(totalSpentAll)}</span></div>`;
+        document.getElementById('monthDetails').innerHTML = detailsHtml;
 
         const baseWeekly = monthlyBudget / 4;
         const curWNum = Math.ceil(dayOfMonth / 7);
@@ -265,11 +278,12 @@
             weeks[w].days[e.date].push(e);
         });
 
-        let totalRollover = 0;
+        // ROLLOVER LOGIC (Now correctly deducts the prevSpent as a past deficit)
+        let loggedSpentInPastWeeks = 0;
         for (let i = 1; i < curWNum; i++) {
-            const spent = weeks[i] ? weeks[i].total : 0;
-            totalRollover += (baseWeekly - spent);
+            loggedSpentInPastWeeks += (weeks[i] ? weeks[i].total : 0);
         }
+        let totalRollover = (baseWeekly * (curWNum - 1)) - loggedSpentInPastWeeks - prevSpent;
         
         const weeksRemaining = (4 - curWNum) + 1; 
         const rolloverPerWeek = totalRollover / weeksRemaining;
@@ -306,10 +320,9 @@
                 const daysLeftInW = Math.max(1, (7 - dayOfW) + 1);
                 safeDaily = Math.max(0, remaining / daysLeftInW); 
                 
-                // --- PROGRESS BAR MATH ---
                 let percentSpent = budgetForThisWeek > 0 ? (spent / budgetForThisWeek) * 100 : 0;
                 if (percentSpent > 100) percentSpent = 100;
-                if (budgetForThisWeek <= 0) percentSpent = 100; // Over budget fallback
+                if (budgetForThisWeek <= 0) percentSpent = 100; 
                 
                 let progressColor = 'var(--success)';
                 if (percentSpent > 75) progressColor = 'var(--warning)';
