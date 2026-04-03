@@ -107,8 +107,28 @@
         .inline-keypad-btn.action { background: var(--primary); color: white; border: none; }
         
         .dev-credit { text-align: center; margin-top: 30px; margin-bottom: 10px; font-size: 12px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.5px; }
-        
         .save-badge { font-size:11px; background: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 12px; font-weight: 800; letter-spacing: 0.5px;}
+
+        /* --- NEW ANIMATION CSS --- */
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.92); }
+            100% { transform: scale(1); }
+        }
+        .animate-pop { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .animate-shake { animation: shake 0.4s ease; }
+
+        @keyframes slideDownFade {
+            from { opacity: 0; transform: translateY(-10px); background-color: #dbeafe; }
+            to { opacity: 1; transform: translateY(0); background-color: transparent; }
+        }
+        .new-expense-anim { animation: slideDownFade 0.6s ease forwards; }
     </style>
 </head>
 <body>
@@ -182,7 +202,7 @@
     </div>
 
     <div id="view-add" class="view" style="display:none;">
-        <div class="card" style="padding-bottom: 16px;">
+        <div class="card" id="addCard" style="padding-bottom: 16px;">
             <h2 style="margin-bottom: 16px;">Add Expense</h2>
             <input type="text" id="expenseName" placeholder="What did you buy?">
             <input type="date" id="expenseDate">
@@ -214,7 +234,7 @@
                 <button class="inline-keypad-btn action" style="grid-column: span 2;" onclick="inlineKp('=')">=</button>
             </div>
             
-            <button onclick="addExpense()" style="background: var(--primary); margin-top: 16px; padding: 16px; font-size: 18px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">Save Expense</button>
+            <button id="saveBtn" onclick="addExpense()" style="background: var(--primary); margin-top: 16px; padding: 16px; font-size: 18px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">Save Expense</button>
         </div>
     </div>
 
@@ -239,7 +259,6 @@
                     <div><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 2</label><input type="text" id="sav2" class="calc-input" readonly onclick="openKeypad('sav2')" placeholder="₹0" style="margin-bottom:0;"></div>
                     <div><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 3</label><input type="text" id="sav3" class="calc-input" readonly onclick="openKeypad('sav3')" placeholder="₹0" style="margin-bottom:0;"></div>
                     <div><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 4</label><input type="text" id="sav4" class="calc-input" readonly onclick="openKeypad('sav4')" placeholder="₹0" style="margin-bottom:0;"></div>
-                    <div style="grid-column: span 2;"><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 5 (If applicable)</label><input type="text" id="sav5" class="calc-input" readonly onclick="openKeypad('sav5')" placeholder="₹0" style="margin-bottom:0;"></div>
                 </div>
             </div>
 
@@ -287,8 +306,9 @@
     let monthlyBudget = parseFloat(localStorage.getItem('monthlyBudget')) || 0;
     let prevSpent = parseFloat(localStorage.getItem('prevSpent')) || 0;
     let savingsEnabled = localStorage.getItem('savingsEnabled') === 'true';
-    let savings = JSON.parse(localStorage.getItem('savings')) || {1:0, 2:0, 3:0, 4:0, 5:0};
+    let savings = JSON.parse(localStorage.getItem('savings')) || {1:0, 2:0, 3:0, 4:0};
     let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+    let lastAddedExpenseId = null; // Memory for our slide-in animation
     
     document.getElementById('expenseDate').valueAsDate = new Date();
 
@@ -303,10 +323,9 @@
             document.getElementById('welcomeModal').classList.add('active');
         }
 
-        // Init savings UI
         document.getElementById('savingsToggle').checked = savingsEnabled;
         toggleSavingsUI();
-        for(let i=1; i<=5; i++) {
+        for(let i=1; i<=4; i++) {
             document.getElementById('sav'+i).value = savings[i] || '';
         }
     });
@@ -380,7 +399,7 @@
         prevSpent = parseFloat(document.getElementById('prevSpentInput').value) || 0;
         savingsEnabled = document.getElementById('savingsToggle').checked;
         
-        for(let i=1; i<=5; i++) {
+        for(let i=1; i<=4; i++) {
             savings[i] = parseFloat(document.getElementById('sav'+i).value) || 0;
         }
 
@@ -392,22 +411,43 @@
         updateUI(); switchTab('view-home', document.querySelector('.nav-btn'));
     }
 
+    // --- ANIMATED ADD EXPENSE FUNCTION ---
     function addExpense() {
         inlineKp('='); 
         const n = document.getElementById('expenseName').value;
         const a = parseFloat(document.getElementById('expenseAmount').value);
         const d = document.getElementById('expenseDate').value;
         
-        if(!n || isNaN(a) || !d) return alert("Please fill all fields");
+        // 1. Error Shake Animation
+        if(!n || isNaN(a) || !d) {
+            const card = document.getElementById('addCard');
+            card.classList.add('animate-shake');
+            setTimeout(() => card.classList.remove('animate-shake'), 400);
+            return; 
+        }
         
-        expenses.push({ id: Date.now(), name: n, amount: a, date: d });
-        localStorage.setItem('expenses', JSON.stringify(expenses));
-        updateUI(); 
+        // 2. Success Pop Animation
+        const btn = document.getElementById('saveBtn');
+        btn.classList.add('animate-pop');
         
-        document.getElementById('expenseName').value = '';
-        document.getElementById('expenseAmount').value = '';
-        
-        switchTab('view-home', document.querySelector('.nav-btn'));
+        // Wait 300ms for the pop animation to finish before switching tabs
+        setTimeout(() => {
+            btn.classList.remove('animate-pop');
+            
+            const newExpenseId = Date.now();
+            expenses.push({ id: newExpenseId, name: n, amount: a, date: d });
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+            
+            // Mark this ID so updateUI knows to animate it
+            lastAddedExpenseId = newExpenseId;
+            
+            updateUI(); 
+            
+            document.getElementById('expenseName').value = '';
+            document.getElementById('expenseAmount').value = '';
+            
+            switchTab('view-home', document.querySelector('.nav-btn'));
+        }, 300);
     }
 
     function openEditModal(id) {
@@ -499,7 +539,6 @@
             const spent = weekData ? weekData.total : 0;
             const isCurrent = (w === curWNum);
             
-            // Current week gets the rollover applied, past weeks just show their actual budget
             let budgetForThisWeek = baseWeekly - wSaving;
             if (isCurrent) budgetForThisWeek += rolloverPerWeek;
             
@@ -578,7 +617,9 @@
                 `;
                 
                 weekData.days[date].forEach(exp => {
-                    html += `<li class="expense-item" onclick="openEditModal(${exp.id})"><span>${exp.name}</span><span class="muted">${formatINR(exp.amount)}</span></li>`;
+                    // 3. Slide-In Animation Logic
+                    let animClass = (exp.id === lastAddedExpenseId) ? 'new-expense-anim' : '';
+                    html += `<li class="expense-item ${animClass}" onclick="openEditModal(${exp.id})"><span>${exp.name}</span><span class="muted">${formatINR(exp.amount)}</span></li>`;
                 });
                 
                 html += `</ul></div>`;
@@ -587,6 +628,9 @@
             html += `</div></div>`;
             container.innerHTML += html;
         }
+        
+        // Reset the memory so it only animates once!
+        lastAddedExpenseId = null;
     }
     updateUI();
 </script>
