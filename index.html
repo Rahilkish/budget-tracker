@@ -535,7 +535,6 @@
 
             let savedBadge = wSaving > 0 ? `<span class="save-badge">Saved ${formatINR(wSaving)}</span>` : '';
 
-            // Clean Week Header with Safe Daily tucked in cleanly
             let html = `
                 <div class="week-card">
                     <div class="week-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
@@ -562,7 +561,6 @@
                 if (percentSpent > 75) progressColor = 'var(--warning)';
                 if (percentSpent > 90) progressColor = 'var(--danger)';
 
-                // Minimal Dashboard Line
                 html += `
                 <div style="padding: 0 16px 16px 16px; border-bottom: 1px dashed var(--border); margin-bottom: 16px;">
                     <div style="font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 8px; font-weight: 500;">
@@ -581,20 +579,19 @@
                 const limitToCompare = isCurrent ? safeDaily : ((baseWeekly - wSaving) / 7);
                 const isOver = dTotal > limitToCompare;
 
-                // Collapsible Days (Closed by default)
+                // --- THE FIX: Restored the inline limit visibility ---
                 html += `
                     <div class="day-group">
                         <div class="day-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
                             <span class="day-date">${formatCleanDate(date)} <span style="font-size:10px; color:#94a3b8; margin-left:4px;">▼</span></span>
                             <span class="day-meta ${isOver ? 'red' : ''}">
                                 ${formatINR(dTotal)} 
-                                <span class="limit" style="display:none;">/ ${formatINR(limitToCompare)}</span>
+                                <span class="limit">/ ${formatINR(limitToCompare)}</span>
                             </span>
                         </div>
                         <ul class="expense-list" style="display: none; padding-top: 10px; margin-top: 5px; border-top: 1px dashed #e2e8f0;">
                 `;
                 
-                // Sorting so newest expense is at the top of the day
                 weekData.days[date].sort((a,b) => b.id - a.id).forEach(exp => {
                     let animClass = (exp.id === lastAddedExpenseId) ? 'new-expense-anim' : '';
                     html += `<li class="expense-item ${animClass}" onclick="openEditModal(${exp.id})"><span>${exp.name}</span><span class="muted">${formatINR(exp.amount)}</span></li>`;
