@@ -57,8 +57,8 @@
         .expense-item:last-child { border-bottom: none; padding-bottom: 0; }
         
         .day-group { background: #f8fafc; border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin: 0 16px 16px 16px; }
-        .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .day-date { font-size: 12px; font-weight: 800; color: #475569; text-transform: uppercase; background: #ffffff; border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);}
+        .day-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .day-date { font-size: 12px; font-weight: 800; color: #475569; text-transform: uppercase; background: #ffffff; border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 6px;}
         .day-meta { font-size: 15px; font-weight: 700; }
         .day-meta .limit { color: var(--text-muted); font-weight: 500; font-size: 13px; margin-left: 2px; }
         
@@ -66,13 +66,6 @@
         .week-header { display: flex; justify-content: space-between; align-items: center; padding: 16px; cursor: pointer; }
         .week-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-muted); display:flex; align-items:center; gap:8px;}
         .week-remaining { font-size: 18px; font-weight: 700; }
-        
-        .dashboard-container { padding: 4px 16px 20px 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-        .dashboard-stats { display: flex; justify-content: space-between; margin-bottom: 16px; text-align: center; }
-        .stat-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .stat-icon { font-size: 18px; margin-bottom: 2px; }
-        .stat-value { font-size: 15px; font-weight: 800; color: var(--text-main); }
-        .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
         
         .progress-bg { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; width: 100%; }
         .progress-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease, background-color 0.4s ease; }
@@ -109,7 +102,7 @@
         .dev-credit { text-align: center; margin-top: 30px; margin-bottom: 10px; font-size: 12px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.5px; }
         .save-badge { font-size:11px; background: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 12px; font-weight: 800; letter-spacing: 0.5px;}
 
-        /* --- NEW ANIMATION CSS --- */
+        /* ANIMATIONS */
         @keyframes pop {
             0% { transform: scale(1); }
             50% { transform: scale(0.92); }
@@ -259,6 +252,7 @@
                     <div><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 2</label><input type="text" id="sav2" class="calc-input" readonly onclick="openKeypad('sav2')" placeholder="₹0" style="margin-bottom:0;"></div>
                     <div><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 3</label><input type="text" id="sav3" class="calc-input" readonly onclick="openKeypad('sav3')" placeholder="₹0" style="margin-bottom:0;"></div>
                     <div><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 4</label><input type="text" id="sav4" class="calc-input" readonly onclick="openKeypad('sav4')" placeholder="₹0" style="margin-bottom:0;"></div>
+                    <div style="grid-column: span 2;"><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 5 (If applicable)</label><input type="text" id="sav5" class="calc-input" readonly onclick="openKeypad('sav5')" placeholder="₹0" style="margin-bottom:0;"></div>
                 </div>
             </div>
 
@@ -306,9 +300,9 @@
     let monthlyBudget = parseFloat(localStorage.getItem('monthlyBudget')) || 0;
     let prevSpent = parseFloat(localStorage.getItem('prevSpent')) || 0;
     let savingsEnabled = localStorage.getItem('savingsEnabled') === 'true';
-    let savings = JSON.parse(localStorage.getItem('savings')) || {1:0, 2:0, 3:0, 4:0};
+    let savings = JSON.parse(localStorage.getItem('savings')) || {1:0, 2:0, 3:0, 4:0, 5:0};
     let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-    let lastAddedExpenseId = null; // Memory for our slide-in animation
+    let lastAddedExpenseId = null;
     
     document.getElementById('expenseDate').valueAsDate = new Date();
 
@@ -325,7 +319,7 @@
 
         document.getElementById('savingsToggle').checked = savingsEnabled;
         toggleSavingsUI();
-        for(let i=1; i<=4; i++) {
+        for(let i=1; i<=5; i++) {
             document.getElementById('sav'+i).value = savings[i] || '';
         }
     });
@@ -399,7 +393,7 @@
         prevSpent = parseFloat(document.getElementById('prevSpentInput').value) || 0;
         savingsEnabled = document.getElementById('savingsToggle').checked;
         
-        for(let i=1; i<=4; i++) {
+        for(let i=1; i<=5; i++) {
             savings[i] = parseFloat(document.getElementById('sav'+i).value) || 0;
         }
 
@@ -411,14 +405,12 @@
         updateUI(); switchTab('view-home', document.querySelector('.nav-btn'));
     }
 
-    // --- ANIMATED ADD EXPENSE FUNCTION ---
     function addExpense() {
         inlineKp('='); 
         const n = document.getElementById('expenseName').value;
         const a = parseFloat(document.getElementById('expenseAmount').value);
         const d = document.getElementById('expenseDate').value;
         
-        // 1. Error Shake Animation
         if(!n || isNaN(a) || !d) {
             const card = document.getElementById('addCard');
             card.classList.add('animate-shake');
@@ -426,11 +418,9 @@
             return; 
         }
         
-        // 2. Success Pop Animation
         const btn = document.getElementById('saveBtn');
         btn.classList.add('animate-pop');
         
-        // Wait 300ms for the pop animation to finish before switching tabs
         setTimeout(() => {
             btn.classList.remove('animate-pop');
             
@@ -438,9 +428,7 @@
             expenses.push({ id: newExpenseId, name: n, amount: a, date: d });
             localStorage.setItem('expenses', JSON.stringify(expenses));
             
-            // Mark this ID so updateUI knows to animate it
             lastAddedExpenseId = newExpenseId;
-            
             updateUI(); 
             
             document.getElementById('expenseName').value = '';
@@ -531,7 +519,7 @@
         const container = document.getElementById('monthContainer');
         container.innerHTML = '';
 
-        for (let w = 4; w >= 1; w--) {
+        for (let w = 5; w >= 1; w--) {
             const weekData = weeks[w];
             const wSaving = savingsEnabled ? (savings[w] || 0) : 0;
             if (w !== curWNum && (!weekData || weekData.total === 0) && wSaving === 0) continue;
@@ -547,6 +535,7 @@
 
             let savedBadge = wSaving > 0 ? `<span class="save-badge">Saved ${formatINR(wSaving)}</span>` : '';
 
+            // Clean Week Header with Safe Daily tucked in cleanly
             let html = `
                 <div class="week-card">
                     <div class="week-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
@@ -554,6 +543,7 @@
                         <div style="text-align: right;">
                             <div class="muted" style="font-size: 11px;">${isCurrent ? 'REMAINING' : 'BALANCE'}</div>
                             <div class="week-remaining ${remaining < 0 ? 'red' : 'green'}">${formatINR(remaining)}</div>
+                            ${isCurrent ? `<div style="font-size: 11px; margin-top: 2px; color: var(--text-muted); font-weight: 500;">Safe Daily: <span style="color: var(--success); font-weight: 700;">${formatINR(safeDaily)}</span></div>` : ''}
                         </div>
                     </div>
                     <div style="display: ${isCurrent ? 'block' : 'none'}; padding-bottom: 10px;">
@@ -572,24 +562,11 @@
                 if (percentSpent > 75) progressColor = 'var(--warning)';
                 if (percentSpent > 90) progressColor = 'var(--danger)';
 
+                // Minimal Dashboard Line
                 html += `
-                <div class="dashboard-container">
-                    <div class="dashboard-stats">
-                        <div class="stat-item">
-                            <span class="stat-icon">🏦</span>
-                            <span class="stat-value">${formatINR(baseWeekly - wSaving)}</span>
-                            <span class="stat-label">Base</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-icon">🔄</span>
-                            <span class="stat-value ${rolloverPerWeek >= 0 ? 'green' : 'red'}">${rolloverPerWeek >= 0 ? '+' : ''}${formatINR(rolloverPerWeek)}</span>
-                            <span class="stat-label">Rollover</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-icon">🛡️</span>
-                            <span class="stat-value green">${formatINR(safeDaily)}</span>
-                            <span class="stat-label">Safe Daily</span>
-                        </div>
+                <div style="padding: 0 16px 16px 16px; border-bottom: 1px dashed var(--border); margin-bottom: 16px;">
+                    <div style="font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 8px; font-weight: 500;">
+                        Base: <b>${formatINR(baseWeekly - wSaving)}</b> &nbsp;•&nbsp; Rollover: <b class="${rolloverPerWeek >= 0 ? 'green' : 'red'}">${rolloverPerWeek >= 0 ? '+' : ''}${formatINR(rolloverPerWeek)}</b>
                     </div>
                     <div class="progress-bg">
                         <div class="progress-fill" style="width: ${percentSpent}%; background-color: ${progressColor};"></div>
@@ -604,20 +581,21 @@
                 const limitToCompare = isCurrent ? safeDaily : ((baseWeekly - wSaving) / 7);
                 const isOver = dTotal > limitToCompare;
 
+                // Collapsible Days (Closed by default)
                 html += `
                     <div class="day-group">
-                        <div class="day-header">
-                            <span class="day-date">${formatCleanDate(date)}</span>
+                        <div class="day-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+                            <span class="day-date">${formatCleanDate(date)} <span style="font-size:10px; color:#94a3b8; margin-left:4px;">▼</span></span>
                             <span class="day-meta ${isOver ? 'red' : ''}">
                                 ${formatINR(dTotal)} 
-                                <span class="limit">/ ${formatINR(limitToCompare)}</span>
+                                <span class="limit" style="display:none;">/ ${formatINR(limitToCompare)}</span>
                             </span>
                         </div>
-                        <ul class="expense-list">
+                        <ul class="expense-list" style="display: none; padding-top: 10px; margin-top: 5px; border-top: 1px dashed #e2e8f0;">
                 `;
                 
-                weekData.days[date].forEach(exp => {
-                    // 3. Slide-In Animation Logic
+                // Sorting so newest expense is at the top of the day
+                weekData.days[date].sort((a,b) => b.id - a.id).forEach(exp => {
                     let animClass = (exp.id === lastAddedExpenseId) ? 'new-expense-anim' : '';
                     html += `<li class="expense-item ${animClass}" onclick="openEditModal(${exp.id})"><span>${exp.name}</span><span class="muted">${formatINR(exp.amount)}</span></li>`;
                 });
@@ -629,7 +607,6 @@
             container.innerHTML += html;
         }
         
-        // Reset the memory so it only animates once!
         lastAddedExpenseId = null;
     }
     updateUI();
