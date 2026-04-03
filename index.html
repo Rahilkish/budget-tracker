@@ -43,7 +43,7 @@
         .month-details { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border); font-size: 14px; color: var(--text-muted); }
         .month-details-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
 
-        input, button { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; }
+        input[type="text"], input[type="date"], button { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; }
         button { background: var(--text-main); color: white; border: none; font-weight: 600; cursor: pointer; transition: transform 0.1s;}
         button:active { transform: scale(0.98); }
         .calc-input { background-color: #f8fafc; cursor: pointer; caret-color: transparent; font-weight: 500; color: var(--text-main);}
@@ -64,7 +64,7 @@
         
         .week-card { margin-bottom: 12px; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--surface); box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
         .week-header { display: flex; justify-content: space-between; align-items: center; padding: 16px; cursor: pointer; }
-        .week-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-muted); }
+        .week-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-muted); display:flex; align-items:center; gap:8px;}
         .week-remaining { font-size: 18px; font-weight: 700; }
         
         .dashboard-container { padding: 4px 16px 20px 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
@@ -78,7 +78,7 @@
         .progress-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease, background-color 0.4s ease; }
         
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 12px 10px 25px 10px; border-top: 1px solid var(--border); z-index: 10; max-width: 400px; margin: 0 auto; }
-        .nav-btn { background: none; color: var(--text-muted); border: none; font-size: 13px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .nav-btn { background: none; color: var(--text-muted); border: none; font-size: 13px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; padding:0; width:auto; margin:0;}
         .nav-btn.active { color: var(--primary); }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); z-index: 50; justify-content: center; align-items: center; padding: 15px; backdrop-filter: blur(3px); }
@@ -101,12 +101,14 @@
         .keypad-btn.op { background: #e0f2fe; color: var(--primary); }
         .keypad-btn.action { background: var(--primary); color: white; border: none; }
 
-        .inline-keypad-btn { background: white; border: 1px solid var(--border); border-radius: 10px; font-size: 20px; padding: 12px 0; font-weight: 700; color: var(--text-main); cursor: pointer; }
+        .inline-keypad-btn { background: white; border: 1px solid var(--border); border-radius: 10px; font-size: 20px; padding: 12px 0; font-weight: 700; color: var(--text-main); cursor: pointer; margin:0;}
         .inline-keypad-btn:active { background: #e2e8f0; }
         .inline-keypad-btn.op { background: #e0f2fe; color: var(--primary); }
         .inline-keypad-btn.action { background: var(--primary); color: white; border: none; }
         
         .dev-credit { text-align: center; margin-top: 30px; margin-bottom: 10px; font-size: 12px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.5px; }
+        
+        .save-badge { font-size:11px; background: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 12px; font-weight: 800; letter-spacing: 0.5px;}
     </style>
 </head>
 <body>
@@ -225,8 +227,24 @@
             <label style="font-size:14px; font-weight:600; margin-top:16px; display:block;">Already Spent (Before App)</label>
             <input type="text" id="prevSpentInput" class="calc-input" readonly onclick="openKeypad('prevSpentInput')" placeholder="₹0">
             
-            <button onclick="saveBudget()" style="margin-top:24px;">Save Settings</button>
-            <button onclick="clearAllData()" style="background: var(--danger); margin-top:20px;">Reset All Data</button>
+            <label style="display:flex; align-items:center; gap:10px; font-weight:600; margin-top:24px; cursor:pointer; font-size: 15px;">
+                <input type="checkbox" id="savingsToggle" onchange="toggleSavingsUI()" style="width:20px; height:20px; margin:0; accent-color: var(--primary);">
+                Enable Weekly Savings 💰
+            </label>
+            
+            <div id="savingsSection" style="display:none; margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border);">
+                <p style="font-size:13px; color:var(--text-muted); margin-top:0;">Lock away money each week. It won't show in your spending pool.</p>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 1</label><input type="text" id="sav1" class="calc-input" readonly onclick="openKeypad('sav1')" placeholder="₹0" style="margin-bottom:0;"></div>
+                    <div><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 2</label><input type="text" id="sav2" class="calc-input" readonly onclick="openKeypad('sav2')" placeholder="₹0" style="margin-bottom:0;"></div>
+                    <div><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 3</label><input type="text" id="sav3" class="calc-input" readonly onclick="openKeypad('sav3')" placeholder="₹0" style="margin-bottom:0;"></div>
+                    <div><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 4</label><input type="text" id="sav4" class="calc-input" readonly onclick="openKeypad('sav4')" placeholder="₹0" style="margin-bottom:0;"></div>
+                    <div style="grid-column: span 2;"><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 5 (If applicable)</label><input type="text" id="sav5" class="calc-input" readonly onclick="openKeypad('sav5')" placeholder="₹0" style="margin-bottom:0;"></div>
+                </div>
+            </div>
+
+            <button onclick="saveBudget()" style="margin-top:24px; padding:16px;">Save Settings</button>
+            <button onclick="clearAllData()" style="background: white; color: var(--danger); border: 2px solid var(--danger); margin-top:12px;">Reset All Data</button>
         </div>
         
         <div class="dev-credit">Designed & Coded by Rahil</div>
@@ -268,36 +286,40 @@
 <script>
     let monthlyBudget = parseFloat(localStorage.getItem('monthlyBudget')) || 0;
     let prevSpent = parseFloat(localStorage.getItem('prevSpent')) || 0;
+    let savingsEnabled = localStorage.getItem('savingsEnabled') === 'true';
+    let savings = JSON.parse(localStorage.getItem('savings')) || {1:0, 2:0, 3:0, 4:0, 5:0};
     let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+    
     document.getElementById('expenseDate').valueAsDate = new Date();
 
-    // ONBOARDING LOGIC (Install Prompt -> Tutorial)
     document.addEventListener("DOMContentLoaded", () => {
-        // Detect if app is running as a real standalone app
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-        
         if (!isStandalone && !localStorage.getItem('installDismissed')) {
             document.getElementById('installModal').classList.add('active');
-            
-            // Detect OS to show correct instructions
             const userAgent = window.navigator.userAgent.toLowerCase();
-            if (/iphone|ipad|ipod/.test(userAgent)) {
-                document.getElementById('install-ios').style.display = 'block';
-            } else {
-                document.getElementById('install-android').style.display = 'block';
-            }
+            if (/iphone|ipad|ipod/.test(userAgent)) document.getElementById('install-ios').style.display = 'block';
+            else document.getElementById('install-android').style.display = 'block';
         } else if (!localStorage.getItem('tutorialSeen')) {
             document.getElementById('welcomeModal').classList.add('active');
         }
+
+        // Init savings UI
+        document.getElementById('savingsToggle').checked = savingsEnabled;
+        toggleSavingsUI();
+        for(let i=1; i<=5; i++) {
+            document.getElementById('sav'+i).value = savings[i] || '';
+        }
     });
+
+    function toggleSavingsUI() {
+        const isChecked = document.getElementById('savingsToggle').checked;
+        document.getElementById('savingsSection').style.display = isChecked ? 'block' : 'none';
+    }
 
     function closeInstallPrompt() {
         localStorage.setItem('installDismissed', 'true');
         document.getElementById('installModal').classList.remove('active');
-        
-        if (!localStorage.getItem('tutorialSeen')) {
-            document.getElementById('welcomeModal').classList.add('active');
-        }
+        if (!localStorage.getItem('tutorialSeen')) document.getElementById('welcomeModal').classList.add('active');
     }
 
     function closeTutorial() {
@@ -356,8 +378,17 @@
     function saveBudget() { 
         monthlyBudget = parseFloat(document.getElementById('monthlyBudgetInput').value) || 0;
         prevSpent = parseFloat(document.getElementById('prevSpentInput').value) || 0;
+        savingsEnabled = document.getElementById('savingsToggle').checked;
+        
+        for(let i=1; i<=5; i++) {
+            savings[i] = parseFloat(document.getElementById('sav'+i).value) || 0;
+        }
+
         localStorage.setItem('monthlyBudget', monthlyBudget);
         localStorage.setItem('prevSpent', prevSpent);
+        localStorage.setItem('savingsEnabled', savingsEnabled);
+        localStorage.setItem('savings', JSON.stringify(savings));
+        
         updateUI(); switchTab('view-home', document.querySelector('.nav-btn'));
     }
 
@@ -416,17 +447,22 @@
 
         const totalLoggedSpent = thisMonthExps.reduce((s, e) => s + e.amount, 0);
         const totalSpentAll = totalLoggedSpent + prevSpent;
-        const remainingMonth = monthlyBudget - totalSpentAll;
+        
+        let totalSavedAll = 0;
+        if(savingsEnabled) {
+            totalSavedAll = Object.values(savings).reduce((a, b) => a + b, 0);
+        }
+
+        const remainingMonth = monthlyBudget - totalSpentAll - totalSavedAll;
         
         const mainDisplay = document.getElementById('monthlyBudgetDisplayMain');
         mainDisplay.innerText = formatINR(remainingMonth);
         mainDisplay.className = remainingMonth < 0 ? 'red' : 'green';
         
         let detailsHtml = `<div class="month-details-row"><span>Monthly Budget:</span><span style="color:var(--text-main); font-weight:600;">${formatINR(monthlyBudget)}</span></div>`;
-        if(prevSpent > 0) {
-            detailsHtml += `<div class="month-details-row"><span>Spent Before App:</span><span style="color:var(--danger); font-weight:600;">${formatINR(prevSpent)}</span></div>`;
-        }
+        if(prevSpent > 0) detailsHtml += `<div class="month-details-row"><span>Spent Before App:</span><span style="color:var(--danger); font-weight:600;">${formatINR(prevSpent)}</span></div>`;
         detailsHtml += `<div class="month-details-row"><span>App Expenses:</span><span style="color:var(--text-main); font-weight:600;">${formatINR(totalLoggedSpent)}</span></div>`;
+        if(savingsEnabled && totalSavedAll > 0) detailsHtml += `<div class="month-details-row"><span>Locked Savings:</span><span style="color:var(--success); font-weight:800;">${formatINR(totalSavedAll)} 🔒</span></div>`;
         detailsHtml += `<div class="month-details-row" style="border-top:1px solid #e2e8f0; margin-top:4px; padding-top:6px;"><span>Total Spent:</span><span style="color:var(--text-main); font-weight:800;">${formatINR(totalSpentAll)}</span></div>`;
         document.getElementById('monthDetails').innerHTML = detailsHtml;
 
@@ -442,33 +478,40 @@
         });
 
         let loggedSpentInPastWeeks = 0;
+        let savedInPastWeeks = 0;
         for (let i = 1; i < curWNum; i++) {
             loggedSpentInPastWeeks += (weeks[i] ? weeks[i].total : 0);
+            if(savingsEnabled) savedInPastWeeks += (savings[i] || 0);
         }
-        let totalRollover = (baseWeekly * (curWNum - 1)) - loggedSpentInPastWeeks - prevSpent;
         
+        let totalRollover = (baseWeekly * (curWNum - 1)) - loggedSpentInPastWeeks - prevSpent - savedInPastWeeks;
         const weeksRemaining = (4 - curWNum) + 1; 
         const rolloverPerWeek = totalRollover / weeksRemaining;
-        const currentWeekBudget = baseWeekly + rolloverPerWeek;
-
+        
         const container = document.getElementById('monthContainer');
         container.innerHTML = '';
 
         for (let w = 4; w >= 1; w--) {
             const weekData = weeks[w];
-            if (w !== curWNum && (!weekData || weekData.total === 0)) continue;
+            const wSaving = savingsEnabled ? (savings[w] || 0) : 0;
+            if (w !== curWNum && (!weekData || weekData.total === 0) && wSaving === 0) continue;
 
             const spent = weekData ? weekData.total : 0;
             const isCurrent = (w === curWNum);
-            const budgetForThisWeek = isCurrent ? currentWeekBudget : baseWeekly;
+            
+            // Current week gets the rollover applied, past weeks just show their actual budget
+            let budgetForThisWeek = baseWeekly - wSaving;
+            if (isCurrent) budgetForThisWeek += rolloverPerWeek;
+            
             const remaining = budgetForThisWeek - spent;
+            let safeDaily = (baseWeekly - wSaving) / 7;
 
-            let safeDaily = baseWeekly / 7;
+            let savedBadge = wSaving > 0 ? `<span class="save-badge">Saved ${formatINR(wSaving)}</span>` : '';
 
             let html = `
                 <div class="week-card">
                     <div class="week-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
-                        <h3 class="week-title">WEEK ${w}</h3>
+                        <h3 class="week-title">WEEK ${w} ${savedBadge}</h3>
                         <div style="text-align: right;">
                             <div class="muted" style="font-size: 11px;">${isCurrent ? 'REMAINING' : 'BALANCE'}</div>
                             <div class="week-remaining ${remaining < 0 ? 'red' : 'green'}">${formatINR(remaining)}</div>
@@ -495,7 +538,7 @@
                     <div class="dashboard-stats">
                         <div class="stat-item">
                             <span class="stat-icon">🏦</span>
-                            <span class="stat-value">${formatINR(baseWeekly)}</span>
+                            <span class="stat-value">${formatINR(baseWeekly - wSaving)}</span>
                             <span class="stat-label">Base</span>
                         </div>
                         <div class="stat-item">
@@ -519,7 +562,7 @@
             sortedDates.forEach(date => {
                 const dTotal = weekData.days[date].reduce((s, e) => s + e.amount, 0);
                 
-                const limitToCompare = isCurrent ? safeDaily : (baseWeekly / 7);
+                const limitToCompare = isCurrent ? safeDaily : ((baseWeekly - wSaving) / 7);
                 const isOver = dTotal > limitToCompare;
 
                 html += `
