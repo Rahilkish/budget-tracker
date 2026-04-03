@@ -58,7 +58,10 @@
         
         .day-group { background: #f8fafc; border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin: 0 16px 16px 16px; }
         .day-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .day-date { font-size: 12px; font-weight: 800; color: #475569; text-transform: uppercase; background: #ffffff; border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 6px;}
+        
+        /* The specific fix: Removed background, border, padding, and shadow */
+        .day-date { font-size: 13px; font-weight: 800; color: #475569; text-transform: uppercase; display: flex; align-items: center; gap: 6px;}
+        
         .day-meta { font-size: 15px; font-weight: 700; }
         .day-meta .limit { color: var(--text-muted); font-weight: 500; font-size: 13px; margin-left: 2px; }
         
@@ -579,7 +582,6 @@
                 const limitToCompare = isCurrent ? safeDaily : ((baseWeekly - wSaving) / 7);
                 const isOver = dTotal > limitToCompare;
 
-                // --- THE FIX: Restored the inline limit visibility ---
                 html += `
                     <div class="day-group">
                         <div class="day-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
