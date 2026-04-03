@@ -38,7 +38,6 @@
         .header-top { display: flex; justify-content: space-between; align-items: center; }
         .header-top h2 { margin: 0; font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 8px;}
         .header-top .total-budget { font-size: 18px; color: var(--text-main); font-weight: 700; }
-        .header-arrow { font-size: 12px; color: var(--text-muted); transition: transform 0.3s; }
         
         .month-details { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border); font-size: 14px; color: var(--text-muted); }
         .month-details-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
@@ -58,10 +57,7 @@
         
         .day-group { background: #f8fafc; border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin: 0 16px 16px 16px; }
         .day-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        
-        /* The specific fix: Removed background, border, padding, and shadow */
         .day-date { font-size: 13px; font-weight: 800; color: #475569; text-transform: uppercase; display: flex; align-items: center; gap: 6px;}
-        
         .day-meta { font-size: 15px; font-weight: 700; }
         .day-meta .limit { color: var(--text-muted); font-weight: 500; font-size: 13px; margin-left: 2px; }
         
@@ -188,7 +184,7 @@
     <div id="view-home" class="view" style="display:block;">
         <div class="header-main" onclick="toggleMonthDetails()">
             <div class="header-top">
-                <h2>💳 Broke No More <span id="monthArrow" class="header-arrow">&#9660;</span></h2>
+                <h2>💳 Broke No More</h2>
                 <div class="total-budget">Left: <span id="monthlyBudgetDisplayMain" class="green">₹0</span></div>
             </div>
             <div id="monthDetails" class="month-details"></div>
@@ -381,13 +377,10 @@
 
     function toggleMonthDetails() {
         const details = document.getElementById('monthDetails');
-        const arrow = document.getElementById('monthArrow');
         if (details.style.display === 'block') {
             details.style.display = 'none';
-            arrow.innerHTML = '&#9660;';
         } else {
             details.style.display = 'block';
-            arrow.innerHTML = '&#9650;';
         }
     }
 
@@ -471,6 +464,10 @@
         const now = new Date();
         const curM = now.getMonth(), curY = now.getFullYear();
         const dayOfMonth = now.getDate();
+        
+        // Format today's date exactly as "YYYY-MM-DD" to auto-open today's tab
+        const todayStr = curY + '-' + String(curM + 1).padStart(2, '0') + '-' + String(dayOfMonth).padStart(2, '0');
+
         const thisMonthExps = expenses.filter(e => {
             const d = new Date(e.date);
             return d.getMonth() === curM && d.getFullYear() === curY;
@@ -581,17 +578,20 @@
                 
                 const limitToCompare = isCurrent ? safeDaily : ((baseWeekly - wSaving) / 7);
                 const isOver = dTotal > limitToCompare;
+                
+                // Keep today's drawer open automatically
+                const isOpen = (date === todayStr);
 
                 html += `
                     <div class="day-group">
                         <div class="day-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
-                            <span class="day-date">${formatCleanDate(date)} <span style="font-size:10px; color:#94a3b8; margin-left:4px;">▼</span></span>
+                            <span class="day-date">${formatCleanDate(date)}</span>
                             <span class="day-meta ${isOver ? 'red' : ''}">
                                 ${formatINR(dTotal)} 
                                 <span class="limit">/ ${formatINR(limitToCompare)}</span>
                             </span>
                         </div>
-                        <ul class="expense-list" style="display: none; padding-top: 10px; margin-top: 5px; border-top: 1px dashed #e2e8f0;">
+                        <ul class="expense-list" style="display: ${isOpen ? 'block' : 'none'}; padding-top: 10px; margin-top: 5px; border-top: 1px dashed #e2e8f0;">
                 `;
                 
                 weekData.days[date].sort((a,b) => b.id - a.id).forEach(exp => {
