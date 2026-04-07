@@ -101,25 +101,20 @@
         .dev-credit { text-align: center; margin-top: 30px; margin-bottom: 10px; font-size: 12px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.5px; }
         .save-badge { font-size:11px; background: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 12px; font-weight: 800; letter-spacing: 0.5px;}
 
+        /* IOU STYLES */
+        #iouToggleBtn { transition: background 0.2s, color 0.2s; }
+        .iou-btn { background: white; color: var(--text-muted); border: 1px solid var(--border); font-size: 14px; font-weight: 600; padding: 10px; margin-bottom: 0;}
+        .iou-btn.active { background: var(--text-main); color: white; border-color: var(--text-main); }
+        .badge-orange { background: #ffedd5; color: #c2410c; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800;}
+        .badge-purple { background: #f3e8ff; color: #7e22ce; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800;}
+        .settled-item { opacity: 0.5; }
+
         /* ANIMATIONS */
-        @keyframes pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(0.92); }
-            100% { transform: scale(1); }
-        }
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(0.92); } 100% { transform: scale(1); } }
         .animate-pop { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-8px); }
-            40%, 80% { transform: translateX(8px); }
-        }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
         .animate-shake { animation: shake 0.4s ease; }
-
-        @keyframes slideDownFade {
-            from { opacity: 0; transform: translateY(-10px); background-color: #dbeafe; }
-            to { opacity: 1; transform: translateY(0); background-color: transparent; }
-        }
+        @keyframes slideDownFade { from { opacity: 0; transform: translateY(-10px); background-color: #dbeafe; } to { opacity: 1; transform: translateY(0); background-color: transparent; } }
         .new-expense-anim { animation: slideDownFade 0.6s ease forwards; }
     </style>
 </head>
@@ -196,7 +191,20 @@
     <div id="view-add" class="view" style="display:none;">
         <div class="card" id="addCard" style="padding-bottom: 16px;">
             <h2 style="margin-bottom: 16px;">Add Expense</h2>
-            <input type="text" id="expenseName" placeholder="What did you buy?">
+            
+            <div style="position: relative; margin-bottom: 12px;">
+                <input type="text" id="expenseName" placeholder="What did you buy?" style="margin-bottom: 0; padding-right: 48px;">
+                <button id="iouToggleBtn" onclick="toggleIOU()" style="position: absolute; right: 4px; top: 4px; height: 38px; width: 40px; background: #f1f5f9; color: var(--text-main); border: none; border-radius: 8px; font-size: 18px; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; box-shadow: none;">👤</button>
+            </div>
+
+            <div id="iouDrawer" style="display: none; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px dashed #cbd5e1; margin-bottom: 12px;">
+                <input type="text" id="friendName" placeholder="Friend's Name" style="font-size: 14px; padding: 12px; margin-bottom: 10px;">
+                <div style="display: flex; gap: 8px;">
+                    <button id="btnIPaid" onclick="setIOUPaid('me')" class="iou-btn active">I Paid</button>
+                    <button id="btnTheyPaid" onclick="setIOUPaid('them')" class="iou-btn">They Paid</button>
+                </div>
+            </div>
+
             <input type="date" id="expenseDate">
             
             <input type="text" id="expenseAmount" readonly placeholder="₹0" style="width: 100%; font-size: 28px; text-align: right; padding: 16px 20px; background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 12px; margin-bottom: 16px; color: var(--primary); font-weight: 800; outline: none; caret-color: transparent;">
@@ -276,11 +284,15 @@
         <input type="text" id="editName">
         <input type="text" id="editAmount" class="calc-input" readonly onclick="openKeypad('editAmount')">
         <input type="date" id="editDate">
-        <div style="display:flex; gap:10px; margin-top:10px;">
-            <button onclick="saveEdit()" style="background:var(--success);">Update</button>
-            <button onclick="deleteExpense()" style="background:var(--danger);">Delete</button>
+        
+        <div style="display:flex; flex-direction: column; gap:10px; margin-top:16px;">
+            <button id="settleBtn" onclick="toggleSettle()" style="background:#f59e0b; display:none; padding: 16px; font-size: 16px;">Settle Up ✅</button>
+            <div style="display:flex; gap:10px;">
+                <button onclick="saveEdit()" style="background:var(--success);">Update</button>
+                <button onclick="deleteExpense()" style="background:var(--danger);">Delete</button>
+            </div>
+            <button onclick="closeEditModal()" style="background:none; color:black; margin-top:5px; border:none;">Cancel</button>
         </div>
-        <button onclick="closeEditModal()" style="background:none; color:black; margin-top:10px; border:none;">Cancel</button>
     </div>
 </div>
 
@@ -302,6 +314,10 @@
     let savings = JSON.parse(localStorage.getItem('savings')) || {1:0, 2:0, 3:0, 4:0, 5:0};
     let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
     let lastAddedExpenseId = null;
+    
+    // IOU State
+    let isIOUOpen = false;
+    let whoPaidIOU = 'me';
     
     document.getElementById('expenseDate').valueAsDate = new Date();
 
@@ -326,6 +342,20 @@
     function toggleSavingsUI() {
         const isChecked = document.getElementById('savingsToggle').checked;
         document.getElementById('savingsSection').style.display = isChecked ? 'block' : 'none';
+    }
+    
+    // --- IOU Drawer Functions ---
+    function toggleIOU() {
+        isIOUOpen = !isIOUOpen;
+        document.getElementById('iouDrawer').style.display = isIOUOpen ? 'block' : 'none';
+        document.getElementById('iouToggleBtn').style.background = isIOUOpen ? 'var(--primary)' : '#f1f5f9';
+        document.getElementById('iouToggleBtn').style.color = isIOUOpen ? 'white' : 'var(--text-main)';
+    }
+
+    function setIOUPaid(who) {
+        whoPaidIOU = who;
+        document.getElementById('btnIPaid').className = who === 'me' ? 'iou-btn active' : 'iou-btn';
+        document.getElementById('btnTheyPaid').className = who === 'them' ? 'iou-btn active' : 'iou-btn';
     }
 
     function closeInstallPrompt() {
@@ -407,6 +437,20 @@
         const a = parseFloat(document.getElementById('expenseAmount').value);
         const d = document.getElementById('expenseDate').value;
         
+        let type = 'normal';
+        let friendName = '';
+        
+        if (isIOUOpen) {
+            friendName = document.getElementById('friendName').value.trim();
+            if (!friendName) {
+                const card = document.getElementById('addCard');
+                card.classList.add('animate-shake');
+                setTimeout(() => card.classList.remove('animate-shake'), 400);
+                return;
+            }
+            type = (whoPaidIOU === 'me') ? 'owed_to_me' : 'i_owe';
+        }
+        
         if(!n || isNaN(a) || !d) {
             const card = document.getElementById('addCard');
             card.classList.add('animate-shake');
@@ -421,8 +465,24 @@
             btn.classList.remove('animate-pop');
             
             const newExpenseId = Date.now();
-            expenses.push({ id: newExpenseId, name: n, amount: a, date: d });
+            expenses.push({ 
+                id: newExpenseId, 
+                name: n, 
+                amount: a, 
+                date: d,
+                type: type,
+                friend: friendName,
+                settled: false 
+            });
             localStorage.setItem('expenses', JSON.stringify(expenses));
+            
+            // Reset the IOU Drawer UI
+            isIOUOpen = false;
+            document.getElementById('iouDrawer').style.display = 'none';
+            document.getElementById('friendName').value = '';
+            setIOUPaid('me');
+            document.getElementById('iouToggleBtn').style.background = '#f1f5f9';
+            document.getElementById('iouToggleBtn').style.color = 'var(--text-main)';
             
             lastAddedExpenseId = newExpenseId;
             updateUI(); 
@@ -436,17 +496,57 @@
 
     function openEditModal(id) {
         const e = expenses.find(x => x.id === id);
-        document.getElementById('editId').value = e.id; document.getElementById('editName').value = e.name; document.getElementById('editAmount').value = e.amount; document.getElementById('editDate').value = e.date;
+        document.getElementById('editId').value = e.id; 
+        document.getElementById('editName').value = e.name; 
+        document.getElementById('editAmount').value = e.amount; 
+        document.getElementById('editDate').value = e.date;
+        
+        const settleBtn = document.getElementById('settleBtn');
+        if (e.type && e.type !== 'normal') {
+            settleBtn.style.display = 'block';
+            if (e.settled) {
+                settleBtn.innerText = 'Undo Settlement ❌';
+                settleBtn.style.background = 'var(--text-muted)';
+            } else {
+                settleBtn.innerText = 'Settle Up ✅';
+                settleBtn.style.background = (e.type === 'i_owe') ? '#f97316' : '#a855f7';
+            }
+        } else {
+            settleBtn.style.display = 'none';
+        }
+        
         document.getElementById('editModal').classList.add('active');
     }
+
     function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
+    
     function saveEdit() {
         const id = parseInt(document.getElementById('editId').value);
         const idx = expenses.findIndex(x => x.id === id);
-        expenses[idx] = { id, name: document.getElementById('editName').value, amount: parseFloat(document.getElementById('editAmount').value), date: document.getElementById('editDate').value };
+        const existing = expenses[idx];
+        
+        expenses[idx] = { 
+            id, 
+            name: document.getElementById('editName').value, 
+            amount: parseFloat(document.getElementById('editAmount').value), 
+            date: document.getElementById('editDate').value,
+            type: existing.type || 'normal',
+            friend: existing.friend || '',
+            settled: existing.settled || false
+        };
         localStorage.setItem('expenses', JSON.stringify(expenses));
         updateUI(); closeEditModal();
     }
+    
+    function toggleSettle() {
+        const id = parseInt(document.getElementById('editId').value);
+        const e = expenses.find(x => x.id === id);
+        e.settled = !e.settled; // Toggle settled status
+        localStorage.setItem('expenses', JSON.stringify(expenses));
+        updateUI(); 
+        closeEditModal();
+    }
+
     function deleteExpense() {
         expenses = expenses.filter(x => x.id !== parseInt(document.getElementById('editId').value));
         localStorage.setItem('expenses', JSON.stringify(expenses));
@@ -464,8 +564,6 @@
         const now = new Date();
         const curM = now.getMonth(), curY = now.getFullYear();
         const dayOfMonth = now.getDate();
-        
-        // Format today's date exactly as "YYYY-MM-DD" to auto-open today's tab
         const todayStr = curY + '-' + String(curM + 1).padStart(2, '0') + '-' + String(dayOfMonth).padStart(2, '0');
 
         const thisMonthExps = expenses.filter(e => {
@@ -473,7 +571,12 @@
             return d.getMonth() === curM && d.getFullYear() === curY;
         });
 
-        const totalLoggedSpent = thisMonthExps.reduce((s, e) => s + e.amount, 0);
+        // MATH LOGIC: If a friend pays you back ("owed_to_me" is settled), that money is ignored so your budget gets refunded.
+        const totalLoggedSpent = thisMonthExps.reduce((s, e) => {
+            if (e.type === 'owed_to_me' && e.settled) return s; 
+            return s + e.amount;
+        }, 0);
+        
         const totalSpentAll = totalLoggedSpent + prevSpent;
         
         let totalSavedAll = 0;
@@ -500,7 +603,11 @@
         thisMonthExps.forEach(e => {
             const d = new Date(e.date), w = Math.ceil(d.getDate() / 7);
             if (!weeks[w]) weeks[w] = { total: 0, days: {} };
-            weeks[w].total += e.amount;
+            
+            let amt = e.amount;
+            if (e.type === 'owed_to_me' && e.settled) amt = 0; 
+            
+            weeks[w].total += amt;
             if (!weeks[w].days[e.date]) weeks[w].days[e.date] = [];
             weeks[w].days[e.date].push(e);
         });
@@ -574,12 +681,13 @@
 
             const sortedDates = Object.keys(weekData ? weekData.days : {}).sort((a,b) => new Date(b) - new Date(a));
             sortedDates.forEach(date => {
-                const dTotal = weekData.days[date].reduce((s, e) => s + e.amount, 0);
+                const dTotal = weekData.days[date].reduce((s, e) => {
+                    if (e.type === 'owed_to_me' && e.settled) return s;
+                    return s + e.amount;
+                }, 0);
                 
                 const limitToCompare = isCurrent ? safeDaily : ((baseWeekly - wSaving) / 7);
                 const isOver = dTotal > limitToCompare;
-                
-                // Keep today's drawer open automatically
                 const isOpen = (date === todayStr);
 
                 html += `
@@ -596,7 +704,33 @@
                 
                 weekData.days[date].sort((a,b) => b.id - a.id).forEach(exp => {
                     let animClass = (exp.id === lastAddedExpenseId) ? 'new-expense-anim' : '';
-                    html += `<li class="expense-item ${animClass}" onclick="openEditModal(${exp.id})"><span>${exp.name}</span><span class="muted">${formatINR(exp.amount)}</span></li>`;
+                    let settledClass = exp.settled ? 'settled-item' : '';
+                    
+                    let nameHtml = `<span>${exp.name}</span>`;
+                    let amtHtml = `<span class="muted">${formatINR(exp.amount)}</span>`;
+
+                    if (exp.type === 'i_owe') {
+                        nameHtml = `<span style="display:flex; flex-direction:column; gap:2px;">
+                                        <span>${exp.name}</span>
+                                        <span class="badge-orange">⚠️ You owe ${exp.friend}</span>
+                                    </span>`;
+                        if (!exp.settled) amtHtml = `<span style="color:#f97316; font-weight:700;">${formatINR(exp.amount)}</span>`;
+                    } else if (exp.type === 'owed_to_me') {
+                        nameHtml = `<span style="display:flex; flex-direction:column; gap:2px;">
+                                        <span>${exp.name}</span>
+                                        <span class="badge-purple">⏳ ${exp.friend} owes you</span>
+                                    </span>`;
+                        if (!exp.settled) amtHtml = `<span style="color:#a855f7; font-weight:700;">${formatINR(exp.amount)}</span>`;
+                    }
+
+                    if(exp.settled) {
+                        amtHtml = `<span class="muted">✅ ${formatINR(exp.amount)}</span>`;
+                    }
+
+                    html += `<li class="expense-item ${animClass} ${settledClass}" onclick="openEditModal(${exp.id})" style="align-items:flex-start;">
+                                ${nameHtml}
+                                <div style="text-align:right;">${amtHtml}</div>
+                             </li>`;
                 });
                 
                 html += `</ul></div>`;
