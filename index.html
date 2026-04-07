@@ -101,13 +101,19 @@
         .dev-credit { text-align: center; margin-top: 30px; margin-bottom: 10px; font-size: 12px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.5px; }
         .save-badge { font-size:11px; background: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 12px; font-weight: 800; letter-spacing: 0.5px;}
 
-        /* IOU STYLES */
+        /* IOU & DRAWER STYLES */
         #iouToggleBtn { transition: background 0.2s, color 0.2s; }
         .iou-btn { background: white; color: var(--text-muted); border: 1px solid var(--border); font-size: 14px; font-weight: 600; padding: 10px; margin-bottom: 0;}
         .iou-btn.active { background: var(--text-main); color: white; border-color: var(--text-main); }
         .badge-orange { background: #ffedd5; color: #c2410c; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800;}
         .badge-purple { background: #f3e8ff; color: #7e22ce; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800;}
         .settled-item { opacity: 0.5; }
+
+        .setup-drawer-btn { display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); cursor: pointer; transition: background 0.2s; border: 1px solid var(--border); margin-top: 12px;}
+        .setup-drawer-btn:active { background: #f1f5f9; }
+        .setup-drawer-content { display: none; background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px dashed var(--border); margin-top: 8px;}
+        .drawer-chevron { font-size: 10px; color: #94a3b8; margin-left: 4px; transition: transform 0.3s; display: inline-block; }
+        .setup-drawer-btn.open .drawer-chevron { transform: rotate(180deg); }
 
         /* ANIMATIONS */
         @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(0.92); } 100% { transform: scale(1); } }
@@ -239,28 +245,44 @@
     </div>
 
     <div id="view-settings" class="view" style="display:none;">
-        <div class="card">
+        <div class="card" style="padding-bottom: 20px;">
             <h2>Setup</h2>
             <label style="font-size:14px; font-weight:600;">Monthly Budget</label>
-            <input type="text" id="monthlyBudgetInput" class="calc-input" readonly onclick="openKeypad('monthlyBudgetInput')">
+            <input type="text" id="monthlyBudgetInput" class="calc-input" readonly onclick="openKeypad('monthlyBudgetInput')" style="margin-bottom: 16px;">
             
-            <label style="font-size:14px; font-weight:600; margin-top:16px; display:block;">Already Spent (Before App)</label>
-            <input type="text" id="prevSpentInput" class="calc-input" readonly onclick="openKeypad('prevSpentInput')" placeholder="₹0">
+            <label style="font-size:14px; font-weight:600; display:block;">Already Spent (Before App)</label>
+            <input type="text" id="prevSpentInput" class="calc-input" readonly onclick="openKeypad('prevSpentInput')" placeholder="₹0" style="margin-bottom: 8px;">
             
-            <label style="display:flex; align-items:center; gap:10px; font-weight:600; margin-top:24px; cursor:pointer; font-size: 15px;">
-                <input type="checkbox" id="savingsToggle" onchange="toggleSavingsUI()" style="width:20px; height:20px; margin:0; accent-color: var(--primary);">
-                Enable Weekly Savings 💰
-            </label>
-            
-            <div id="savingsSection" style="display:none; margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border);">
-                <p style="font-size:13px; color:var(--text-muted); margin-top:0;">Lock away money each week. It won't show in your spending pool.</p>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 1</label><input type="text" id="sav1" class="calc-input" readonly onclick="openKeypad('sav1')" placeholder="₹0" style="margin-bottom:0;"></div>
-                    <div><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 2</label><input type="text" id="sav2" class="calc-input" readonly onclick="openKeypad('sav2')" placeholder="₹0" style="margin-bottom:0;"></div>
-                    <div><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 3</label><input type="text" id="sav3" class="calc-input" readonly onclick="openKeypad('sav3')" placeholder="₹0" style="margin-bottom:0;"></div>
-                    <div><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 4</label><input type="text" id="sav4" class="calc-input" readonly onclick="openKeypad('sav4')" placeholder="₹0" style="margin-bottom:0;"></div>
-                    <div style="grid-column: span 2;"><label style="font-size:12px; color:var(--text-muted); font-weight:700;">WEEK 5 (If applicable)</label><input type="text" id="sav5" class="calc-input" readonly onclick="openKeypad('sav5')" placeholder="₹0" style="margin-bottom:0;"></div>
+            <div class="setup-drawer-btn" onclick="toggleSetupDrawer('savingsDrawerUI', this)">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size: 18px;">💰</span> <span style="font-weight: 700; font-size: 15px; color: var(--text-main);">Savings Vault</span>
                 </div>
+                <div style="font-size: 13px; font-weight: 700; color: var(--success);">Locked: <span id="savingsLockedTotal">₹0</span> <span class="drawer-chevron">▼</span></div>
+            </div>
+            
+            <div id="savingsDrawerUI" class="setup-drawer-content">
+                <label style="display:flex; align-items:center; gap:10px; font-weight:600; cursor:pointer; font-size: 14px; margin-bottom:12px; color: var(--text-main);">
+                    <input type="checkbox" id="savingsToggle" style="width:18px; height:18px; margin:0; accent-color: var(--primary);">
+                    Enable Weekly Savings
+                </label>
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
+                    <div style="text-align:center;"><div style="font-size:10px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">W1</div><input type="text" id="sav1" class="calc-input" readonly onclick="openKeypad('sav1')" placeholder="0" style="padding:10px 4px; font-size:13px; text-align:center; margin:0;"></div>
+                    <div style="text-align:center;"><div style="font-size:10px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">W2</div><input type="text" id="sav2" class="calc-input" readonly onclick="openKeypad('sav2')" placeholder="0" style="padding:10px 4px; font-size:13px; text-align:center; margin:0;"></div>
+                    <div style="text-align:center;"><div style="font-size:10px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">W3</div><input type="text" id="sav3" class="calc-input" readonly onclick="openKeypad('sav3')" placeholder="0" style="padding:10px 4px; font-size:13px; text-align:center; margin:0;"></div>
+                    <div style="text-align:center;"><div style="font-size:10px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">W4</div><input type="text" id="sav4" class="calc-input" readonly onclick="openKeypad('sav4')" placeholder="0" style="padding:10px 4px; font-size:13px; text-align:center; margin:0;"></div>
+                    <div style="text-align:center;"><div style="font-size:10px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">W5</div><input type="text" id="sav5" class="calc-input" readonly onclick="openKeypad('sav5')" placeholder="0" style="padding:10px 4px; font-size:13px; text-align:center; margin:0;"></div>
+                </div>
+            </div>
+
+            <div class="setup-drawer-btn" onclick="toggleSetupDrawer('iouSetupDrawerUI', this)" style="background: #ffffff;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size: 18px;">🤝</span> <span style="font-weight: 700; font-size: 15px; color: var(--text-main);">Active IOUs</span>
+                </div>
+                <div style="font-size: 12px; font-weight: 700;"><span id="iouSetupSummary"></span> <span class="drawer-chevron">▼</span></div>
+            </div>
+            
+            <div id="iouSetupDrawerUI" class="setup-drawer-content" style="background: #ffffff; padding: 0;">
+                <div id="iouSetupList"></div>
             </div>
 
             <button onclick="saveBudget()" style="margin-top:24px; padding:16px;">Save Settings</button>
@@ -333,15 +355,21 @@
         }
 
         document.getElementById('savingsToggle').checked = savingsEnabled;
-        toggleSavingsUI();
         for(let i=1; i<=5; i++) {
             document.getElementById('sav'+i).value = savings[i] || '';
         }
     });
 
-    function toggleSavingsUI() {
-        const isChecked = document.getElementById('savingsToggle').checked;
-        document.getElementById('savingsSection').style.display = isChecked ? 'block' : 'none';
+    // --- SETUP DRAWERS LOGIC ---
+    function toggleSetupDrawer(id, btn) {
+        const content = document.getElementById(id);
+        if (content.style.display === 'block') {
+            content.style.display = 'none';
+            btn.classList.remove('open');
+        } else {
+            content.style.display = 'block';
+            btn.classList.add('open');
+        }
     }
     
     // --- IOU Drawer Functions ---
@@ -428,7 +456,11 @@
         localStorage.setItem('savingsEnabled', savingsEnabled);
         localStorage.setItem('savings', JSON.stringify(savings));
         
-        updateUI(); switchTab('view-home', document.querySelector('.nav-btn'));
+        updateUI(); 
+        
+        const btn = document.querySelector('.setup-drawer-btn');
+        btn.classList.add('animate-pop');
+        setTimeout(() => { btn.classList.remove('animate-pop'); switchTab('view-home', document.querySelector('.nav-btn')); }, 200);
     }
 
     function addExpense() {
@@ -476,7 +508,6 @@
             });
             localStorage.setItem('expenses', JSON.stringify(expenses));
             
-            // Reset the IOU Drawer UI
             isIOUOpen = false;
             document.getElementById('iouDrawer').style.display = 'none';
             document.getElementById('friendName').value = '';
@@ -541,7 +572,7 @@
     function toggleSettle() {
         const id = parseInt(document.getElementById('editId').value);
         const e = expenses.find(x => x.id === id);
-        e.settled = !e.settled; // Toggle settled status
+        e.settled = !e.settled;
         localStorage.setItem('expenses', JSON.stringify(expenses));
         updateUI(); 
         closeEditModal();
@@ -571,7 +602,6 @@
             return d.getMonth() === curM && d.getFullYear() === curY;
         });
 
-        // MATH LOGIC: If a friend pays you back ("owed_to_me" is settled), that money is ignored so your budget gets refunded.
         const totalLoggedSpent = thisMonthExps.reduce((s, e) => {
             if (e.type === 'owed_to_me' && e.settled) return s; 
             return s + e.amount;
@@ -583,6 +613,51 @@
         if(savingsEnabled) {
             totalSavedAll = Object.values(savings).reduce((a, b) => a + b, 0);
         }
+        
+        // --- POPULATE SETUP DRAWERS ---
+        document.getElementById('savingsLockedTotal').innerText = formatINR(totalSavedAll);
+        
+        let iOweTotal = 0;
+        let owedToMeTotal = 0;
+        let iouHtml = '';
+
+        const activeIOUs = expenses.filter(e => (e.type === 'i_owe' || e.type === 'owed_to_me') && !e.settled);
+        activeIOUs.forEach(e => {
+            if (e.type === 'i_owe') iOweTotal += e.amount;
+            if (e.type === 'owed_to_me') owedToMeTotal += e.amount;
+        });
+
+        document.getElementById('iouSetupSummary').innerHTML = `<span style="color:#c2410c;">Owe: ${formatINR(iOweTotal)}</span> | <span style="color:#7e22ce;">Owed: ${formatINR(owedToMeTotal)}</span>`;
+        
+        if (activeIOUs.length === 0) {
+            iouHtml = `<div style="padding: 20px 16px; text-align: center; color: var(--text-muted); font-size: 13px;">No active IOUs. You're all settled up! 🎉</div>`;
+        } else {
+            iouHtml += `<ul class="expense-list" style="padding: 0 16px;">`;
+            activeIOUs.sort((a,b) => a.type.localeCompare(b.type)).forEach(exp => {
+                let nameHtml = '';
+                let amtHtml = '';
+                if (exp.type === 'i_owe') {
+                    nameHtml = `<span style="display:flex; flex-direction:column; gap:2px;">
+                                    <span>${exp.name} <span style="font-size:10px; color:var(--text-muted);">(${formatCleanDate(exp.date)})</span></span>
+                                    <span class="badge-orange">⚠️ You owe ${exp.friend}</span>
+                                </span>`;
+                    amtHtml = `<span style="color:#f97316; font-weight:700;">${formatINR(exp.amount)}</span>`;
+                } else if (exp.type === 'owed_to_me') {
+                    nameHtml = `<span style="display:flex; flex-direction:column; gap:2px;">
+                                    <span>${exp.name} <span style="font-size:10px; color:var(--text-muted);">(${formatCleanDate(exp.date)})</span></span>
+                                    <span class="badge-purple">⏳ ${exp.friend} owes you</span>
+                                </span>`;
+                    amtHtml = `<span style="color:#a855f7; font-weight:700;">${formatINR(exp.amount)}</span>`;
+                }
+                iouHtml += `<li class="expense-item" onclick="openEditModal(${exp.id})" style="align-items:flex-start; padding: 14px 0;">
+                                ${nameHtml}
+                                <div style="text-align:right;">${amtHtml}</div>
+                             </li>`;
+            });
+            iouHtml += `</ul>`;
+        }
+        document.getElementById('iouSetupList').innerHTML = iouHtml;
+        // --------------------------------
 
         const remainingMonth = monthlyBudget - totalSpentAll - totalSavedAll;
         
