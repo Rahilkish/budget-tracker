@@ -385,32 +385,42 @@
         let csvContent = "data:text/csv;charset=utf-8,";
         csvContent += "Date,Item Name,Category,Amount (INR),Transaction Type,Friend Name,Settled\n";
         
+        let totalExpense = 0; // Initialize total counter
+        
         expenses.forEach(e => {
             const date = e.date;
             const name = `"${e.name.replace(/"/g, '""')}"`;
             const category = `"${(e.category || e.name.trim().split(' ')[0]).replace(/"/g, '""')}"`;
             const amount = e.amount;
             
-            // Fix 2: Visual Differentiation using Emojis
+            // Visual Differentiation using Emojis
             let type = 'Normal';
             if (e.type === 'i_owe') type = '⚠️ I Owe';
             else if (e.type === 'owed_to_me') type = '⏳ Owed To Me';
             
             const friend = e.friend ? `"${e.friend.replace(/"/g, '""')}"` : '';
             
-            // Fix 1: Strictly output N/A for anything that isn't a debt/credit
+            // Strictly output N/A for anything that isn't a debt/credit
             let settled = 'N/A';
             if (e.type === 'i_owe' || e.type === 'owed_to_me') {
                 settled = e.settled ? 'Yes' : 'No';
             }
             
+            // Calculate Total (ignoring money friends paid back to you)
+            if (!(e.type === 'owed_to_me' && e.settled)) {
+                totalExpense += amount;
+            }
+            
             csvContent += `${date},${name},${category},${amount},${type},${friend},${settled}\n`;
         });
+
+        // Add the total row at the bottom
+        csvContent += `\n,,Grand Total:,${totalExpense},,,\n`;
 
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "BrokeNoMore_Expenses.csv");
+        link.setAttribute("download", "App_Expenses.csv"); // Used generic name before we finalize new app name!
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
