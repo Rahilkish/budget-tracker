@@ -109,11 +109,18 @@
         .badge-purple { background: #f3e8ff; color: #7e22ce; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800;}
         .settled-item { opacity: 0.5; }
 
+        /* Setup Drawers */
         .setup-drawer-btn { display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); cursor: pointer; transition: background 0.2s; border: 1px solid var(--border); margin-top: 12px;}
         .setup-drawer-btn:active { background: #f1f5f9; }
         .setup-drawer-content { display: none; background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px dashed var(--border); margin-top: 8px;}
         .drawer-chevron { font-size: 10px; color: #94a3b8; margin-left: 4px; transition: transform 0.3s; display: inline-block; }
         .setup-drawer-btn.open .drawer-chevron { transform: rotate(180deg); }
+
+        /* Notification Dots */
+        .dot-wrapper { display: flex; gap: 4px; margin-left: 6px; align-items: center;}
+        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .dot-orange { background: #f97316; box-shadow: 0 0 4px rgba(249,115,22,0.4); }
+        .dot-purple { background: #a855f7; box-shadow: 0 0 4px rgba(168,85,247,0.4); }
 
         /* ANIMATIONS */
         @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(0.92); } 100% { transform: scale(1); } }
@@ -199,7 +206,9 @@
             <h2 style="margin-bottom: 16px;">Add Expense</h2>
             
             <div style="position: relative; margin-bottom: 12px;">
-                <input type="text" id="expenseName" placeholder="What did you buy?" style="margin-bottom: 0; padding-right: 48px;">
+                <input type="text" id="expenseName" list="expenseSuggestions" autocomplete="off" placeholder="What did you buy?" style="margin-bottom: 0; padding-right: 48px;">
+                <datalist id="expenseSuggestions"></datalist>
+                
                 <button id="iouToggleBtn" onclick="toggleIOU()" style="position: absolute; right: 4px; top: 4px; height: 38px; width: 40px; background: #f1f5f9; color: var(--text-main); border: none; border-radius: 8px; font-size: 18px; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; box-shadow: none;">👤</button>
             </div>
 
@@ -286,6 +295,8 @@
             </div>
 
             <button onclick="saveBudget()" style="margin-top:24px; padding:16px;">Save Settings</button>
+            
+            <button onclick="exportCSV()" style="background: white; color: var(--success); border: 2px solid var(--success); margin-top:12px;">📥 Export to Excel (CSV)</button>
             <button onclick="clearAllData()" style="background: white; color: var(--danger); border: 2px solid var(--danger); margin-top:12px;">Reset All Data</button>
         </div>
         
@@ -358,9 +369,44 @@
         for(let i=1; i<=5; i++) {
             document.getElementById('sav'+i).value = savings[i] || '';
         }
+        updateSuggestions();
     });
 
-    // --- SETUP DRAWERS LOGIC ---
+    // --- AUTO-SUGGEST ENGINE ---
+    function updateSuggestions() {
+        const datalist = document.getElementById('expenseSuggestions');
+        // Grab the first word of every expense and filter out duplicates
+        const uniqueFirstWords = [...new Set(expenses.map(e => e.name.trim().split(' ')[0]).filter(w => w))];
+        datalist.innerHTML = uniqueFirstWords.map(w => `<option value="${w}">`).join('');
+    }
+
+    // --- CSV EXPORT ENGINE ---
+    function exportCSV() {
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Date,Item Name,Category,Amount (INR),Transaction Type,Friend Name,Settled\n";
+        
+        expenses.forEach(e => {
+            const date = e.date;
+            const name = `"${e.name.replace(/"/g, '""')}"`;
+            // Fallback to extraction if category wasn't saved on older entries
+            const category = `"${(e.category || e.name.trim().split(' ')[0]).replace(/"/g, '""')}"`;
+            const amount = e.amount;
+            const type = e.type === 'i_owe' ? 'I Owe' : (e.type === 'owed_to_me' ? 'Owed To Me' : 'Normal');
+            const friend = e.friend ? `"${e.friend.replace(/"/g, '""')}"` : '';
+            const settled = e.type !== 'normal' ? (e.settled ? 'Yes' : 'No') : 'N/A';
+            
+            csvContent += `${date},${name},${category},${amount},${type},${friend},${settled}\n`;
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "BrokeNoMore_Expenses.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
     function toggleSetupDrawer(id, btn) {
         const content = document.getElementById(id);
         if (content.style.display === 'block') {
@@ -372,7 +418,6 @@
         }
     }
     
-    // --- IOU Drawer Functions ---
     function toggleIOU() {
         isIOUOpen = !isIOUOpen;
         document.getElementById('iouDrawer').style.display = isIOUOpen ? 'block' : 'none';
@@ -490,6 +535,9 @@
             return; 
         }
         
+        // Extract First Word for Smart Category
+        const category = n.trim().split(' ')[0];
+        
         const btn = document.getElementById('saveBtn');
         btn.classList.add('animate-pop');
         
@@ -499,7 +547,8 @@
             const newExpenseId = Date.now();
             expenses.push({ 
                 id: newExpenseId, 
-                name: n, 
+                name: n,
+                category: category, 
                 amount: a, 
                 date: d,
                 type: type,
@@ -516,6 +565,7 @@
             document.getElementById('iouToggleBtn').style.color = 'var(--text-main)';
             
             lastAddedExpenseId = newExpenseId;
+            updateSuggestions();
             updateUI(); 
             
             document.getElementById('expenseName').value = '';
@@ -555,10 +605,13 @@
         const id = parseInt(document.getElementById('editId').value);
         const idx = expenses.findIndex(x => x.id === id);
         const existing = expenses[idx];
+        const newName = document.getElementById('editName').value;
+        const newCategory = newName.trim().split(' ')[0]; // Re-calculate category in case name changed
         
         expenses[idx] = { 
             id, 
-            name: document.getElementById('editName').value, 
+            name: newName,
+            category: newCategory,
             amount: parseFloat(document.getElementById('editAmount').value), 
             date: document.getElementById('editDate').value,
             type: existing.type || 'normal',
@@ -566,6 +619,7 @@
             settled: existing.settled || false
         };
         localStorage.setItem('expenses', JSON.stringify(expenses));
+        updateSuggestions();
         updateUI(); closeEditModal();
     }
     
@@ -581,12 +635,23 @@
     function deleteExpense() {
         expenses = expenses.filter(x => x.id !== parseInt(document.getElementById('editId').value));
         localStorage.setItem('expenses', JSON.stringify(expenses));
+        updateSuggestions();
         updateUI(); closeEditModal();
     }
 
     function formatINR(v) { return (v < 0 ? '-' : '') + '₹' + Math.abs(Math.round(v)).toLocaleString('en-IN'); }
     function formatCleanDate(s) { const p = s.split('-'); const m = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; return `${m[p[1]-1]} ${p[2]}`; }
     function clearAllData() { if(confirm("Reset everything?")) { localStorage.clear(); location.reload(); } }
+
+    // Helper for Breadcrumb Dots
+    function getDotsHtml(owe, owed) {
+        if(!owe && !owed) return '';
+        let html = '<div class="dot-wrapper">';
+        if(owe) html += '<span class="dot dot-orange"></span>';
+        if(owed) html += '<span class="dot dot-purple"></span>';
+        html += '</div>';
+        return html;
+    }
 
     function updateUI() {
         document.getElementById('monthlyBudgetInput').value = monthlyBudget || '';
@@ -614,7 +679,7 @@
             totalSavedAll = Object.values(savings).reduce((a, b) => a + b, 0);
         }
         
-        // --- POPULATE SETUP DRAWERS ---
+        // Populate IOUs Summary
         document.getElementById('savingsLockedTotal').innerText = formatINR(totalSavedAll);
         
         let iOweTotal = 0;
@@ -657,7 +722,6 @@
             iouHtml += `</ul>`;
         }
         document.getElementById('iouSetupList').innerHTML = iouHtml;
-        // --------------------------------
 
         const remainingMonth = monthlyBudget - totalSpentAll - totalSavedAll;
         
@@ -675,9 +739,14 @@
         const baseWeekly = monthlyBudget / 4;
         const curWNum = Math.ceil(dayOfMonth / 7);
         const weeks = {};
+        const weekStatus = {}; // Pre-calculate breadcrumb dots for the week headers
+        
         thisMonthExps.forEach(e => {
             const d = new Date(e.date), w = Math.ceil(d.getDate() / 7);
-            if (!weeks[w]) weeks[w] = { total: 0, days: {} };
+            if (!weeks[w]) {
+                weeks[w] = { total: 0, days: {} };
+                weekStatus[w] = { owe: false, owed: false };
+            }
             
             let amt = e.amount;
             if (e.type === 'owed_to_me' && e.settled) amt = 0; 
@@ -685,6 +754,9 @@
             weeks[w].total += amt;
             if (!weeks[w].days[e.date]) weeks[w].days[e.date] = [];
             weeks[w].days[e.date].push(e);
+            
+            if (e.type === 'i_owe' && !e.settled) weekStatus[w].owe = true;
+            if (e.type === 'owed_to_me' && !e.settled) weekStatus[w].owed = true;
         });
 
         let loggedSpentInPastWeeks = 0;
@@ -715,12 +787,16 @@
             const remaining = budgetForThisWeek - spent;
             let safeDaily = (baseWeekly - wSaving) / 7;
 
-            let savedBadge = wSaving > 0 ? `<span class="save-badge">Saved ${formatINR(wSaving)}</span>` : '';
+            let savedBadge = wSaving > 0 ? `<span class="save-badge" style="margin-left: 8px;">Saved ${formatINR(wSaving)}</span>` : '';
+            
+            let weekOwe = weekStatus[w] ? weekStatus[w].owe : false;
+            let weekOwed = weekStatus[w] ? weekStatus[w].owed : false;
+            let weekDotsHtml = getDotsHtml(weekOwe, weekOwed);
 
             let html = `
                 <div class="week-card">
                     <div class="week-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
-                        <h3 class="week-title">WEEK ${w} ${savedBadge}</h3>
+                        <h3 class="week-title">WEEK ${w} ${weekDotsHtml} ${savedBadge}</h3>
                         <div style="text-align: right;">
                             <div class="muted" style="font-size: 11px;">${isCurrent ? 'REMAINING' : 'BALANCE'}</div>
                             <div class="week-remaining ${remaining < 0 ? 'red' : 'green'}">${formatINR(remaining)}</div>
@@ -756,10 +832,17 @@
 
             const sortedDates = Object.keys(weekData ? weekData.days : {}).sort((a,b) => new Date(b) - new Date(a));
             sortedDates.forEach(date => {
+                let dayOwe = false;
+                let dayOwed = false;
+                
                 const dTotal = weekData.days[date].reduce((s, e) => {
+                    if (e.type === 'i_owe' && !e.settled) dayOwe = true;
+                    if (e.type === 'owed_to_me' && !e.settled) dayOwed = true;
                     if (e.type === 'owed_to_me' && e.settled) return s;
                     return s + e.amount;
                 }, 0);
+                
+                let dayDotsHtml = getDotsHtml(dayOwe, dayOwed);
                 
                 const limitToCompare = isCurrent ? safeDaily : ((baseWeekly - wSaving) / 7);
                 const isOver = dTotal > limitToCompare;
@@ -768,7 +851,7 @@
                 html += `
                     <div class="day-group">
                         <div class="day-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
-                            <span class="day-date">${formatCleanDate(date)}</span>
+                            <span class="day-date">${formatCleanDate(date)} ${dayDotsHtml}</span>
                             <span class="day-meta ${isOver ? 'red' : ''}">
                                 ${formatINR(dTotal)} 
                                 <span class="limit">/ ${formatINR(limitToCompare)}</span>
