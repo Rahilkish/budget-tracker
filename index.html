@@ -33,7 +33,7 @@
         .card { background: var(--surface); padding: 24px 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px; }
         h1, h2, h3 { margin-top: 0; }
         
-        .header-main { background: var(--surface); padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px; cursor: pointer; transition: background 0.2s;}
+        .header-main { background: var(--surface); padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 16px; cursor: pointer; transition: background 0.2s;}
         .header-main:active { background: #f1f5f9; }
         .header-top { display: flex; justify-content: space-between; align-items: center; }
         .header-top h2 { margin: 0; font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 8px;}
@@ -42,7 +42,7 @@
         .month-details { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border); font-size: 14px; color: var(--text-muted); }
         .month-details-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
 
-        input[type="text"], input[type="date"], button { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; }
+        input[type="text"], input[type="date"], select, button { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; }
         button { background: var(--text-main); color: white; border: none; font-weight: 600; cursor: pointer; transition: transform 0.1s;}
         button:active { transform: scale(0.98); }
         .calc-input { background-color: #f8fafc; cursor: pointer; caret-color: transparent; font-weight: 500; color: var(--text-main);}
@@ -75,13 +75,9 @@
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); z-index: 50; justify-content: center; align-items: center; padding: 15px; backdrop-filter: blur(3px); }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: var(--surface); width: 100%; max-width: 340px; border-radius: 20px; padding: 24px; position: relative; }
+        .modal-content { background: var(--surface); width: 100%; max-width: 340px; border-radius: 20px; padding: 24px; position: relative; max-height: 90vh; overflow-y: auto;}
 
         .close-x { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; padding: 0; width: auto; margin: 0; line-height: 1; }
-        .tutorial-step { display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-start; }
-        .tutorial-icon { font-size: 24px; background: #f1f5f9; padding: 10px; border-radius: 12px; }
-        .tutorial-text h4 { margin: 0 0 4px 0; font-size: 15px; color: var(--text-main); }
-        .tutorial-text p { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.4; }
 
         .keypad-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         
@@ -101,13 +97,9 @@
         .dev-credit { text-align: center; margin-top: 30px; margin-bottom: 10px; font-size: 12px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.5px; }
         .save-badge { font-size:11px; background: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 12px; font-weight: 800; letter-spacing: 0.5px;}
 
-        /* IOU & DRAWER STYLES */
-        #iouToggleBtn { transition: background 0.2s, color 0.2s; }
-        .iou-btn { background: white; color: var(--text-muted); border: 1px solid var(--border); font-size: 14px; font-weight: 600; padding: 10px; margin-bottom: 0;}
-        .iou-btn.active { background: var(--text-main); color: white; border-color: var(--text-main); }
-        .badge-orange { background: #ffedd5; color: #c2410c; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800;}
-        .badge-purple { background: #f3e8ff; color: #7e22ce; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800;}
-        .settled-item { opacity: 0.5; }
+        /* Category Badges & UI */
+        .cat-badge { font-size: 10px; padding: 2px 7px; border-radius: 6px; font-weight: 700; background: #e0f2fe; color: #0369a1; display: inline-block; margin-top: 2px; }
+        .cat-pill-detected { display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; color: var(--primary); border: 1px dashed var(--primary); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-bottom: 12px; cursor: pointer; }
 
         /* Setup Drawers */
         .setup-drawer-btn { display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); cursor: pointer; transition: background 0.2s; border: 1px solid var(--border); margin-top: 12px;}
@@ -116,79 +108,20 @@
         .drawer-chevron { font-size: 10px; color: #94a3b8; margin-left: 4px; transition: transform 0.3s; display: inline-block; }
         .setup-drawer-btn.open .drawer-chevron { transform: rotate(180deg); }
 
-        /* Notification Dots */
-        .dot-wrapper { display: flex; gap: 4px; margin-left: 6px; align-items: center;}
-        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-        .dot-orange { background: #f97316; box-shadow: 0 0 4px rgba(249,115,22,0.4); }
-        .dot-purple { background: #a855f7; box-shadow: 0 0 4px rgba(168,85,247,0.4); }
+        .kw-tag { display: inline-flex; align-items: center; gap: 4px; background: white; border: 1px solid var(--border); padding: 4px 8px; border-radius: 8px; font-size: 12px; margin: 2px; font-weight: 600; color: #334155; }
+        .kw-tag span { cursor: pointer; color: var(--danger); font-weight: 800; }
 
         /* ANIMATIONS */
         @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(0.92); } 100% { transform: scale(1); } }
         .animate-pop { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
         .animate-shake { animation: shake 0.4s ease; }
-        @keyframes slideDownFade { from { opacity: 0; transform: translateY(-10px); background-color: #dbeafe; } to { opacity: 1; transform: translateY(0); background-color: transparent; } }
-        .new-expense-anim { animation: slideDownFade 0.6s ease forwards; }
     </style>
 </head>
 <body>
 
-<div id="installModal" class="modal-overlay" style="z-index: 60;">
-    <div class="modal-content" style="text-align: center;">
-        <button class="close-x" onclick="closeInstallPrompt()">✕</button>
-        <h2 style="margin-top: 0; margin-bottom: 16px; font-size: 22px;">Get the App! 📱</h2>
-        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.4;">
-            For the best experience, install <b>Broke No More</b> directly to your phone. It works offline and hides the browser bar!
-        </p>
-        
-        <div id="install-ios" style="display:none; background: #f8fafc; padding: 16px; border-radius: 12px; text-align: left; border: 1px solid var(--border);">
-            <div style="margin-bottom: 12px; font-size: 14px; color: var(--text-main);"><b>1.</b> Tap the <b>Share</b> button <span style="font-size:18px;">🔗</span> at the bottom of Safari.</div>
-            <div style="font-size: 14px; color: var(--text-main);"><b>2.</b> Scroll down and tap <b>Add to Home Screen</b> <span style="font-size:18px;">➕</span>.</div>
-        </div>
-
-        <div id="install-android" style="display:none; background: #f8fafc; padding: 16px; border-radius: 12px; text-align: left; border: 1px solid var(--border);">
-            <div style="margin-bottom: 12px; font-size: 14px; color: var(--text-main);"><b>1.</b> Tap the <b>Menu</b> button <span style="font-size:18px;">⋮</span> at the top of Chrome.</div>
-            <div style="font-size: 14px; color: var(--text-main);"><b>2.</b> Tap <b>Install App</b> or <b>Add to Home screen</b> <span style="font-size:18px;">📱</span>.</div>
-        </div>
-
-        <button onclick="closeInstallPrompt()" style="background: white; color: var(--text-main); border: 2px solid var(--border); margin-top: 20px;">I'll do it later</button>
-    </div>
-</div>
-
-<div id="welcomeModal" class="modal-overlay">
-    <div class="modal-content">
-        <button class="close-x" onclick="closeTutorial()">✕</button>
-        <h2 style="margin-top: 0; margin-bottom: 24px; font-size: 22px;">Welcome! 👋</h2>
-        
-        <div class="tutorial-step">
-            <div class="tutorial-icon">⚙️</div>
-            <div class="tutorial-text">
-                <h4>1. Set your limits</h4>
-                <p>Go to the Setup tab and enter your total Monthly Budget.</p>
-            </div>
-        </div>
-
-        <div class="tutorial-step">
-            <div class="tutorial-icon">➕</div>
-            <div class="tutorial-text">
-                <h4>2. Log your spending</h4>
-                <p>Add your expenses using the built-in fast calculator.</p>
-            </div>
-        </div>
-
-        <div class="tutorial-step">
-            <div class="tutorial-icon">🛡️</div>
-            <div class="tutorial-text">
-                <h4>3. Stay in the green</h4>
-                <p>Check the Home tab. Your "Safe Daily" limit adjusts automatically to keep you on track!</p>
-            </div>
-        </div>
-
-        <button onclick="closeTutorial()" style="background: var(--primary); margin-top: 12px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">Got it, Let's go!</button>
-    </div>
-</div>
-
 <div class="container">
+    <!-- HOME VIEW -->
     <div id="view-home" class="view" style="display:block;">
         <div class="header-main" onclick="toggleMonthDetails()">
             <div class="header-top">
@@ -198,19 +131,42 @@
             <div id="monthDetails" class="month-details"></div>
         </div>
 
+        <!-- CATEGORY PROGRESS BREAKDOWN CARD -->
+        <div class="week-card" style="margin-bottom: 16px;">
+            <div class="week-header" onclick="toggleCatBreakdown()">
+                <h3 class="week-title">🎯 Category Budgets</h3>
+                <span class="drawer-chevron" id="catBreakdownChevron">▼</span>
+            </div>
+            <div id="catBreakdownBody" style="display: none; padding: 0 16px 16px 16px;">
+                <div id="catProgressList"></div>
+            </div>
+        </div>
+
         <div id="monthContainer"></div>
     </div>
 
+    <!-- ADD EXPENSE VIEW -->
     <div id="view-add" class="view" style="display:none;">
         <div class="card" id="addCard" style="padding-bottom: 16px;">
             <h2 style="margin-bottom: 16px;">Add Expense</h2>
             
-            <div style="position: relative; margin-bottom: 12px;">
-                <input type="text" id="expenseName" list="expenseSuggestions" autocomplete="off" placeholder="What did you buy?" style="margin-bottom: 0; padding-right: 48px;">
+            <div style="position: relative; margin-bottom: 8px;">
+                <input type="text" id="expenseName" list="expenseSuggestions" autocomplete="off" placeholder="What did you buy?" style="margin-bottom: 0; padding-right: 48px;" onkeyup="onExpenseNameChange()">
                 <datalist id="expenseSuggestions"></datalist>
                 
-                <button id="iouToggleBtn" onclick="toggleIOU()" style="position: absolute; right: 4px; top: 4px; height: 38px; width: 40px; background: #f1f5f9; color: var(--text-main); border: none; border-radius: 8px; font-size: 18px; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; box-shadow: none;">👤</button>
+                <button id="iouToggleBtn" onclick="toggleIOU()" style="position: absolute; right: 4px; top: 4px; height: 38px; width: 40px; background: #f1f5f9; color: var(--text-main); border: none; border-radius: 8px; font-size: 18px; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center;">👤</button>
             </div>
+
+            <!-- Auto-detected category pill -->
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div id="detectedCatPill" class="cat-pill-detected" onclick="overrideCategory()">
+                    <span id="detectedCatText">Category: Misc</span> ✏️
+                </div>
+            </div>
+
+            <select id="manualCategorySelect" style="display: none; margin-bottom: 12px;" onchange="onManualCategoryChange()">
+                <!-- Populated dynamically -->
+            </select>
 
             <div id="iouDrawer" style="display: none; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px dashed #cbd5e1; margin-bottom: 12px;">
                 <input type="text" id="friendName" placeholder="Friend's Name" style="font-size: 14px; padding: 12px; margin-bottom: 10px;">
@@ -222,7 +178,7 @@
 
             <input type="date" id="expenseDate">
             
-            <input type="text" id="expenseAmount" readonly placeholder="₹0" style="width: 100%; font-size: 28px; text-align: right; padding: 16px 20px; background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 12px; margin-bottom: 16px; color: var(--primary); font-weight: 800; outline: none; caret-color: transparent;">
+            <input type="text" id="expenseAmount" readonly placeholder="₹0" style="width: 100%; font-size: 28px; text-align: right; padding: 16px 20px; background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 12px; margin-bottom: 16px; color: var(--primary); font-weight: 800; outline: none;">
             
             <div class="keypad-grid">
                 <button class="inline-keypad-btn" onclick="inlineKp('7')">7</button>
@@ -253,15 +209,29 @@
         </div>
     </div>
 
+    <!-- SETUP VIEW -->
     <div id="view-settings" class="view" style="display:none;">
         <div class="card" style="padding-bottom: 20px;">
             <h2>Setup</h2>
-            <label style="font-size:14px; font-weight:600;">Monthly Budget</label>
+            <label style="font-size:14px; font-weight:600;">Overall Monthly Budget</label>
             <input type="text" id="monthlyBudgetInput" class="calc-input" readonly onclick="openKeypad('monthlyBudgetInput')" style="margin-bottom: 16px;">
             
             <label style="font-size:14px; font-weight:600; display:block;">Already Spent (Before App)</label>
             <input type="text" id="prevSpentInput" class="calc-input" readonly onclick="openKeypad('prevSpentInput')" placeholder="₹0" style="margin-bottom: 8px;">
+
+            <!-- CATEGORY & KEYWORD MANAGER DRAWER -->
+            <div class="setup-drawer-btn" onclick="toggleSetupDrawer('categoryManagerUI', this)">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size: 18px;">🏷️</span> <span style="font-weight: 700; font-size: 15px; color: var(--text-main);">Category Budgets & Keywords</span>
+                </div>
+                <span class="drawer-chevron">▼</span>
+            </div>
             
+            <div id="categoryManagerUI" class="setup-drawer-content">
+                <div id="categoryEditorList"></div>
+            </div>
+            
+            <!-- SAVINGS VAULT DRAWER -->
             <div class="setup-drawer-btn" onclick="toggleSetupDrawer('savingsDrawerUI', this)">
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span style="font-size: 18px;">💰</span> <span style="font-weight: 700; font-size: 15px; color: var(--text-main);">Savings Vault</span>
@@ -283,6 +253,7 @@
                 </div>
             </div>
 
+            <!-- ACTIVE IOUS DRAWER -->
             <div class="setup-drawer-btn" onclick="toggleSetupDrawer('iouSetupDrawerUI', this)" style="background: #ffffff;">
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span style="font-size: 18px;">🤝</span> <span style="font-weight: 700; font-size: 15px; color: var(--text-main);">Active IOUs</span>
@@ -295,7 +266,6 @@
             </div>
 
             <button onclick="saveBudget()" style="margin-top:24px; padding:16px;">Save Settings</button>
-            
             <button onclick="exportCSV()" style="background: white; color: var(--success); border: 2px solid var(--success); margin-top:12px;">📥 Export to Excel (CSV)</button>
             <button onclick="clearAllData()" style="background: white; color: var(--danger); border: 2px solid var(--danger); margin-top:12px;">Reset All Data</button>
         </div>
@@ -310,11 +280,13 @@
     <button class="nav-btn" onclick="switchTab('view-settings', this)"><span>⚙️</span> Setup</button>
 </nav>
 
+<!-- EDIT EXPENSE MODAL -->
 <div id="editModal" class="modal-overlay">
     <div class="modal-content">
         <h2>Edit Expense</h2>
         <input type="hidden" id="editId">
         <input type="text" id="editName">
+        <select id="editCategorySelect" style="margin-bottom: 12px;"></select>
         <input type="text" id="editAmount" class="calc-input" readonly onclick="openKeypad('editAmount')">
         <input type="date" id="editDate">
         
@@ -329,6 +301,7 @@
     </div>
 </div>
 
+<!-- KEYPAD -->
 <div id="keypad" class="keypad-container">
     <div class="keypad-header"><span id="keypadDisplay"></span><button class="keypad-btn action" style="width:auto; padding:5px 15px; font-size:14px;" onclick="closeKeypad()">Done</button></div>
     <div class="keypad-grid">
@@ -341,12 +314,27 @@
 </div>
 
 <script>
+    // --- DEFAULT CATEGORIES & KEYWORD DICTIONARIES ---
+    const defaultCategoryRules = {
+        "Lunch": { budget: 3000, keywords: ["mess", "canteen", "tiffin", "lunch", "thali", "bento"] },
+        "Dinner (Home)": { budget: 2500, keywords: ["veggies", "vegetables", "sabzi", "rice", "atta", "dal", "spices", "raw chicken", "grocery"] },
+        "Dinner (Outside)": { budget: 4000, keywords: ["swiggy", "zomato", "restaurant", "pizza", "diner", "takeout", "burger", "cafe", "bistro"] },
+        "Dairy & Groceries": { budget: 2000, keywords: ["milk", "curd", "paneer", "dahi", "butter", "bread", "eggs", "cheese", "milkman"] },
+        "Travel (Cheap)": { budget: 1500, keywords: ["metro", "auto", "bus", "rapido", "rickshaw", "shared", "local"] },
+        "Travel (Expensive)": { budget: 3000, keywords: ["uber", "ola", "cab", "flight", "train", "indriver", "taxi", "rental"] },
+        "Projects": { budget: 3000, keywords: ["3d print", "acrylic", "laser", "resin", "hardware", "clay", "wire", "prototype", "screws", "fastener", "board"] },
+        "Stationery": { budget: 1500, keywords: ["pen", "notebook", "paper", "sketch", "marker", "tape", "glue", "print", "xerox", "cutter", "binder"] },
+        "Misc": { budget: 1000, keywords: [] }
+    };
+
+    let categoryRules = JSON.parse(localStorage.getItem('categoryRules')) || defaultCategoryRules;
     let monthlyBudget = parseFloat(localStorage.getItem('monthlyBudget')) || 0;
     let prevSpent = parseFloat(localStorage.getItem('prevSpent')) || 0;
     let savingsEnabled = localStorage.getItem('savingsEnabled') === 'true';
     let savings = JSON.parse(localStorage.getItem('savings')) || {1:0, 2:0, 3:0, 4:0, 5:0};
     let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
     let lastAddedExpenseId = null;
+    let currentSelectedCategory = "Misc";
     
     // IOU State
     let isIOUOpen = false;
@@ -355,27 +343,130 @@
     document.getElementById('expenseDate').valueAsDate = new Date();
 
     document.addEventListener("DOMContentLoaded", () => {
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-        if (!isStandalone && !localStorage.getItem('installDismissed')) {
-            document.getElementById('installModal').classList.add('active');
-            const userAgent = window.navigator.userAgent.toLowerCase();
-            if (/iphone|ipad|ipod/.test(userAgent)) document.getElementById('install-ios').style.display = 'block';
-            else document.getElementById('install-android').style.display = 'block';
-        } else if (!localStorage.getItem('tutorialSeen')) {
-            document.getElementById('welcomeModal').classList.add('active');
-        }
-
         document.getElementById('savingsToggle').checked = savingsEnabled;
         for(let i=1; i<=5; i++) {
             document.getElementById('sav'+i).value = savings[i] || '';
         }
         updateSuggestions();
+        renderCategoryEditor();
+        populateCategorySelects();
     });
+
+    // --- SMART AUTO-CATEGORIZATION ENGINE ---
+    function detectCategory(name) {
+        if (!name || !name.trim()) return "Misc";
+        const cleanName = name.toLowerCase().trim();
+        
+        // 1. Check Keywords match
+        for (let catName in categoryRules) {
+            const keywords = categoryRules[catName].keywords || [];
+            for (let kw of keywords) {
+                if (cleanName.includes(kw.toLowerCase())) {
+                    return catName;
+                }
+            }
+        }
+        
+        // 2. Check Past Memory (first word matching)
+        const firstWord = cleanName.split(' ')[0];
+        const pastMatch = expenses.find(e => e.name && e.name.toLowerCase().startsWith(firstWord) && e.category);
+        if (pastMatch) return pastMatch.category;
+
+        return "Misc";
+    }
+
+    function onExpenseNameChange() {
+        const input = document.getElementById('expenseName').value;
+        currentSelectedCategory = detectCategory(input);
+        document.getElementById('detectedCatText').innerText = `Category: ${currentSelectedCategory}`;
+        document.getElementById('manualCategorySelect').value = currentSelectedCategory;
+    }
+
+    function overrideCategory() {
+        const select = document.getElementById('manualCategorySelect');
+        select.style.display = select.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function onManualCategoryChange() {
+        currentSelectedCategory = document.getElementById('manualCategorySelect').value;
+        document.getElementById('detectedCatText').innerText = `Category: ${currentSelectedCategory}`;
+    }
+
+    function populateCategorySelects() {
+        const optionsHtml = Object.keys(categoryRules).map(cat => `<option value="${cat}">${cat}</option>`).join('');
+        document.getElementById('manualCategorySelect').innerHTML = optionsHtml;
+        document.getElementById('editCategorySelect').innerHTML = optionsHtml;
+    }
+
+    // --- CATEGORY MANAGER IN SETUP ---
+    function renderCategoryEditor() {
+        const container = document.getElementById('categoryEditorList');
+        let html = '';
+        
+        for (let catName in categoryRules) {
+            const rule = categoryRules[catName];
+            const tagsHtml = (rule.keywords || []).map((kw, idx) => 
+                `<span class="kw-tag">${kw} <span onclick="removeKeyword('${catName}', ${idx})">×</span></span>`
+            ).join('');
+
+            html += `
+                <div style="background:white; border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <b style="font-size:14px; color:var(--text-main);">${catName}</b>
+                        <div style="display:flex; align-items:center; gap:4px; font-size:12px;">
+                            <span>Limit: ₹</span>
+                            <input type="number" value="${rule.budget || 0}" onchange="updateCatBudget('${catName}', this.value)" style="width:70px; padding:4px 6px; font-size:13px; margin:0;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom:8px;">${tagsHtml}</div>
+                    <div style="display:flex; gap:6px;">
+                        <input type="text" id="addKw_${catName.replace(/[^a-zA-Z0-9]/g, '')}" placeholder="Add keyword..." style="padding:6px; font-size:12px; margin:0;">
+                        <button onclick="addKeyword('${catName}')" style="width:auto; padding:6px 12px; font-size:12px; margin:0; background:var(--primary);">+ Add</button>
+                    </div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+        localStorage.setItem('categoryRules', JSON.stringify(categoryRules));
+    }
+
+    function updateCatBudget(catName, val) {
+        categoryRules[catName].budget = parseFloat(val) || 0;
+        localStorage.setItem('categoryRules', JSON.stringify(categoryRules));
+        updateUI();
+    }
+
+    function addKeyword(catName) {
+        const inputId = `addKw_${catName.replace(/[^a-zA-Z0-9]/g, '')}`;
+        const input = document.getElementById(inputId);
+        const newKw = input.value.trim().toLowerCase();
+        if (newKw && !categoryRules[catName].keywords.includes(newKw)) {
+            categoryRules[catName].keywords.push(newKw);
+            input.value = '';
+            renderCategoryEditor();
+        }
+    }
+
+    function removeKeyword(catName, idx) {
+        categoryRules[catName].keywords.splice(idx, 1);
+        renderCategoryEditor();
+    }
+
+    function toggleCatBreakdown() {
+        const body = document.getElementById('catBreakdownBody');
+        const chevron = document.getElementById('catBreakdownChevron');
+        if (body.style.display === 'none') {
+            body.style.display = 'block';
+            chevron.style.transform = 'rotate(180deg)';
+        } else {
+            body.style.display = 'none';
+            chevron.style.transform = 'rotate(0deg)';
+        }
+    }
 
     // --- AUTO-SUGGEST ENGINE ---
     function updateSuggestions() {
         const datalist = document.getElementById('expenseSuggestions');
-        // Grab the first word of every expense and filter out duplicates
         const uniqueFirstWords = [...new Set(expenses.map(e => e.name.trim().split(' ')[0]).filter(w => w))];
         datalist.innerHTML = uniqueFirstWords.map(w => `<option value="${w}">`).join('');
     }
@@ -385,28 +476,25 @@
         let csvContent = "data:text/csv;charset=utf-8,";
         csvContent += "Date,Item Name,Category,Amount (INR),Transaction Type,Friend Name,Settled\n";
         
-        let totalExpense = 0; // Initialize total counter
+        let totalExpense = 0;
         
         expenses.forEach(e => {
             const date = e.date;
             const name = `"${e.name.replace(/"/g, '""')}"`;
-            const category = `"${(e.category || e.name.trim().split(' ')[0]).replace(/"/g, '""')}"`;
+            const category = `"${(e.category || 'Misc').replace(/"/g, '""')}"`;
             const amount = e.amount;
             
-            // Visual Differentiation using Emojis
             let type = 'Normal';
             if (e.type === 'i_owe') type = '⚠️ I Owe';
             else if (e.type === 'owed_to_me') type = '⏳ Owed To Me';
             
             const friend = e.friend ? `"${e.friend.replace(/"/g, '""')}"` : '';
             
-            // Strictly output N/A for anything that isn't a debt/credit
             let settled = 'N/A';
             if (e.type === 'i_owe' || e.type === 'owed_to_me') {
                 settled = e.settled ? 'Yes' : 'No';
             }
             
-            // Calculate Total (ignoring money friends paid back to you)
             if (!(e.type === 'owed_to_me' && e.settled)) {
                 totalExpense += amount;
             }
@@ -414,13 +502,12 @@
             csvContent += `${date},${name},${category},${amount},${type},${friend},${settled}\n`;
         });
 
-        // Add the total row at the bottom
         csvContent += `\n,,Grand Total:,${totalExpense},,,\n`;
 
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "App_Expenses.csv"); // Used generic name before we finalize new app name!
+        link.setAttribute("download", "App_Expenses.csv");
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -448,17 +535,6 @@
         whoPaidIOU = who;
         document.getElementById('btnIPaid').className = who === 'me' ? 'iou-btn active' : 'iou-btn';
         document.getElementById('btnTheyPaid').className = who === 'them' ? 'iou-btn active' : 'iou-btn';
-    }
-
-    function closeInstallPrompt() {
-        localStorage.setItem('installDismissed', 'true');
-        document.getElementById('installModal').classList.remove('active');
-        if (!localStorage.getItem('tutorialSeen')) document.getElementById('welcomeModal').classList.add('active');
-    }
-
-    function closeTutorial() {
-        localStorage.setItem('tutorialSeen', 'true');
-        document.getElementById('welcomeModal').classList.remove('active');
     }
 
     let activeInputId = null;
@@ -499,11 +575,7 @@
 
     function toggleMonthDetails() {
         const details = document.getElementById('monthDetails');
-        if (details.style.display === 'block') {
-            details.style.display = 'none';
-        } else {
-            details.style.display = 'block';
-        }
+        details.style.display = details.style.display === 'block' ? 'none' : 'block';
     }
 
     function saveBudget() { 
@@ -521,10 +593,7 @@
         localStorage.setItem('savings', JSON.stringify(savings));
         
         updateUI(); 
-        
-        const btn = document.querySelector('.setup-drawer-btn');
-        btn.classList.add('animate-pop');
-        setTimeout(() => { btn.classList.remove('animate-pop'); switchTab('view-home', document.querySelector('.nav-btn')); }, 200);
+        switchTab('view-home', document.querySelector('.nav-btn'));
     }
 
     function addExpense() {
@@ -554,9 +623,6 @@
             return; 
         }
         
-        // Extract First Word for Smart Category
-        const category = n.trim().split(' ')[0];
-        
         const btn = document.getElementById('saveBtn');
         btn.classList.add('animate-pop');
         
@@ -567,7 +633,7 @@
             expenses.push({ 
                 id: newExpenseId, 
                 name: n,
-                category: category, 
+                category: currentSelectedCategory || 'Misc', 
                 amount: a, 
                 date: d,
                 type: type,
@@ -589,6 +655,8 @@
             
             document.getElementById('expenseName').value = '';
             document.getElementById('expenseAmount').value = '';
+            document.getElementById('manualCategorySelect').style.display = 'none';
+            onExpenseNameChange();
             
             switchTab('view-home', document.querySelector('.nav-btn'));
         }, 300);
@@ -597,7 +665,8 @@
     function openEditModal(id) {
         const e = expenses.find(x => x.id === id);
         document.getElementById('editId').value = e.id; 
-        document.getElementById('editName').value = e.name; 
+        document.getElementById('editName').value = e.name;
+        document.getElementById('editCategorySelect').value = e.category || 'Misc';
         document.getElementById('editAmount').value = e.amount; 
         document.getElementById('editDate').value = e.date;
         
@@ -625,7 +694,7 @@
         const idx = expenses.findIndex(x => x.id === id);
         const existing = expenses[idx];
         const newName = document.getElementById('editName').value;
-        const newCategory = newName.trim().split(' ')[0]; // Re-calculate category in case name changed
+        const newCategory = document.getElementById('editCategorySelect').value;
         
         expenses[idx] = { 
             id, 
@@ -662,16 +731,6 @@
     function formatCleanDate(s) { const p = s.split('-'); const m = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; return `${m[p[1]-1]} ${p[2]}`; }
     function clearAllData() { if(confirm("Reset everything?")) { localStorage.clear(); location.reload(); } }
 
-    // Helper for Breadcrumb Dots
-    function getDotsHtml(owe, owed) {
-        if(!owe && !owed) return '';
-        let html = '<div class="dot-wrapper">';
-        if(owe) html += '<span class="dot dot-orange"></span>';
-        if(owed) html += '<span class="dot dot-purple"></span>';
-        html += '</div>';
-        return html;
-    }
-
     function updateUI() {
         document.getElementById('monthlyBudgetInput').value = monthlyBudget || '';
         document.getElementById('prevSpentInput').value = prevSpent || '';
@@ -697,14 +756,41 @@
         if(savingsEnabled) {
             totalSavedAll = Object.values(savings).reduce((a, b) => a + b, 0);
         }
-        
-        // Populate IOUs Summary
+
+        // --- RENDER CATEGORY BREAKDOWN IN HOME TAB ---
+        const catSpentTotals = {};
+        thisMonthExps.forEach(e => {
+            const cat = e.category || 'Misc';
+            catSpentTotals[cat] = (catSpentTotals[cat] || 0) + (e.type === 'owed_to_me' && e.settled ? 0 : e.amount);
+        });
+
+        let catProgressHtml = '';
+        for (let catName in categoryRules) {
+            const limit = categoryRules[catName].budget || 0;
+            const spent = catSpentTotals[catName] || 0;
+            let percent = limit > 0 ? (spent / limit) * 100 : 0;
+            if (percent > 100) percent = 100;
+            
+            let barColor = 'var(--success)';
+            if (percent > 75) barColor = 'var(--warning)';
+            if (percent > 90) barColor = 'var(--danger)';
+
+            catProgressHtml += `
+                <div style="margin-top: 10px;">
+                    <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px; font-weight:600;">
+                        <span>${catName}</span>
+                        <span><b>${formatINR(spent)}</b> / ${formatINR(limit)}</span>
+                    </div>
+                    <div class="progress-bg"><div class="progress-fill" style="width:${percent}%; background-color:${barColor};"></div></div>
+                </div>
+            `;
+        }
+        document.getElementById('catProgressList').innerHTML = catProgressHtml;
+
+        // IOUs Summary Setup
         document.getElementById('savingsLockedTotal').innerText = formatINR(totalSavedAll);
         
-        let iOweTotal = 0;
-        let owedToMeTotal = 0;
-        let iouHtml = '';
-
+        let iOweTotal = 0, owedToMeTotal = 0, iouHtml = '';
         const activeIOUs = expenses.filter(e => (e.type === 'i_owe' || e.type === 'owed_to_me') && !e.settled);
         activeIOUs.forEach(e => {
             if (e.type === 'i_owe') iOweTotal += e.amount;
@@ -714,36 +800,31 @@
         document.getElementById('iouSetupSummary').innerHTML = `<span style="color:#c2410c;">Owe: ${formatINR(iOweTotal)}</span> | <span style="color:#7e22ce;">Owed: ${formatINR(owedToMeTotal)}</span>`;
         
         if (activeIOUs.length === 0) {
-            iouHtml = `<div style="padding: 20px 16px; text-align: center; color: var(--text-muted); font-size: 13px;">No active IOUs. You're all settled up! 🎉</div>`;
+            iouHtml = `<div style="padding: 20px 16px; text-align: center; color: var(--text-muted); font-size: 13px;">No active IOUs. Settled up! 🎉</div>`;
         } else {
             iouHtml += `<ul class="expense-list" style="padding: 0 16px;">`;
             activeIOUs.sort((a,b) => a.type.localeCompare(b.type)).forEach(exp => {
-                let nameHtml = '';
-                let amtHtml = '';
+                let nameHtml = '', amtHtml = '';
                 if (exp.type === 'i_owe') {
                     nameHtml = `<span style="display:flex; flex-direction:column; gap:2px;">
                                     <span>${exp.name} <span style="font-size:10px; color:var(--text-muted);">(${formatCleanDate(exp.date)})</span></span>
-                                    <span class="badge-orange">⚠️ You owe ${exp.friend}</span>
+                                    <span style="background:#ffedd5; color:#c2410c; padding:2px 6px; border-radius:6px; font-size:10px; font-weight:800;">⚠️ You owe ${exp.friend}</span>
                                 </span>`;
                     amtHtml = `<span style="color:#f97316; font-weight:700;">${formatINR(exp.amount)}</span>`;
                 } else if (exp.type === 'owed_to_me') {
                     nameHtml = `<span style="display:flex; flex-direction:column; gap:2px;">
                                     <span>${exp.name} <span style="font-size:10px; color:var(--text-muted);">(${formatCleanDate(exp.date)})</span></span>
-                                    <span class="badge-purple">⏳ ${exp.friend} owes you</span>
+                                    <span style="background:#f3e8ff; color:#7e22ce; padding:2px 6px; border-radius:6px; font-size:10px; font-weight:800;">⏳ ${exp.friend} owes you</span>
                                 </span>`;
                     amtHtml = `<span style="color:#a855f7; font-weight:700;">${formatINR(exp.amount)}</span>`;
                 }
-                iouHtml += `<li class="expense-item" onclick="openEditModal(${exp.id})" style="align-items:flex-start; padding: 14px 0;">
-                                ${nameHtml}
-                                <div style="text-align:right;">${amtHtml}</div>
-                             </li>`;
+                iouHtml += `<li class="expense-item" onclick="openEditModal(${exp.id})" style="align-items:flex-start; padding: 14px 0;">${nameHtml}<div style="text-align:right;">${amtHtml}</div></li>`;
             });
             iouHtml += `</ul>`;
         }
         document.getElementById('iouSetupList').innerHTML = iouHtml;
 
         const remainingMonth = monthlyBudget - totalSpentAll - totalSavedAll;
-        
         const mainDisplay = document.getElementById('monthlyBudgetDisplayMain');
         mainDisplay.innerText = formatINR(remainingMonth);
         mainDisplay.className = remainingMonth < 0 ? 'red' : 'green';
@@ -755,31 +836,22 @@
         detailsHtml += `<div class="month-details-row" style="border-top:1px solid #e2e8f0; margin-top:4px; padding-top:6px;"><span>Total Spent:</span><span style="color:var(--text-main); font-weight:800;">${formatINR(totalSpentAll)}</span></div>`;
         document.getElementById('monthDetails').innerHTML = detailsHtml;
 
+        // Weekly View Calculations
         const baseWeekly = monthlyBudget / 4;
         const curWNum = Math.ceil(dayOfMonth / 7);
         const weeks = {};
-        const weekStatus = {}; 
         
         thisMonthExps.forEach(e => {
             const d = new Date(e.date), w = Math.ceil(d.getDate() / 7);
-            if (!weeks[w]) {
-                weeks[w] = { total: 0, days: {} };
-                weekStatus[w] = { owe: false, owed: false };
-            }
-            
+            if (!weeks[w]) weeks[w] = { total: 0, days: {} };
             let amt = e.amount;
             if (e.type === 'owed_to_me' && e.settled) amt = 0; 
-            
             weeks[w].total += amt;
             if (!weeks[w].days[e.date]) weeks[w].days[e.date] = [];
             weeks[w].days[e.date].push(e);
-            
-            if (e.type === 'i_owe' && !e.settled) weekStatus[w].owe = true;
-            if (e.type === 'owed_to_me' && !e.settled) weekStatus[w].owed = true;
         });
 
-        let loggedSpentInPastWeeks = 0;
-        let savedInPastWeeks = 0;
+        let loggedSpentInPastWeeks = 0, savedInPastWeeks = 0;
         for (let i = 1; i < curWNum; i++) {
             loggedSpentInPastWeeks += (weeks[i] ? weeks[i].total : 0);
             if(savingsEnabled) savedInPastWeeks += (savings[i] || 0);
@@ -799,23 +871,17 @@
 
             const spent = weekData ? weekData.total : 0;
             const isCurrent = (w === curWNum);
-            
             let budgetForThisWeek = baseWeekly - wSaving;
             if (isCurrent) budgetForThisWeek += rolloverPerWeek;
             
             const remaining = budgetForThisWeek - spent;
             let safeDaily = (baseWeekly - wSaving) / 7;
-
-            let savedBadge = wSaving > 0 ? `<span class="save-badge" style="margin-left: 8px;">Saved ${formatINR(wSaving)}</span>` : '';
-            
-            let weekOwe = weekStatus[w] ? weekStatus[w].owe : false;
-            let weekOwed = weekStatus[w] ? weekStatus[w].owed : false;
-            let weekDotsHtml = getDotsHtml(weekOwe, weekOwed);
+            let savedBadge = wSaving > 0 ? `<span class="save-badge">Saved ${formatINR(wSaving)}</span>` : '';
 
             let html = `
                 <div class="week-card">
                     <div class="week-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
-                        <h3 class="week-title">WEEK ${w} ${weekDotsHtml} ${savedBadge}</h3>
+                        <h3 class="week-title">WEEK ${w} ${savedBadge}</h3>
                         <div style="text-align: right;">
                             <div class="muted" style="font-size: 11px;">${isCurrent ? 'REMAINING' : 'BALANCE'}</div>
                             <div class="week-remaining ${remaining < 0 ? 'red' : 'green'}">${formatINR(remaining)}</div>
@@ -832,7 +898,6 @@
                 
                 let percentSpent = budgetForThisWeek > 0 ? (spent / budgetForThisWeek) * 100 : 0;
                 if (percentSpent > 100) percentSpent = 100;
-                if (budgetForThisWeek <= 0) percentSpent = 100; 
                 
                 let progressColor = 'var(--success)';
                 if (percentSpent > 75) progressColor = 'var(--warning)';
@@ -851,18 +916,7 @@
 
             const sortedDates = Object.keys(weekData ? weekData.days : {}).sort((a,b) => new Date(b) - new Date(a));
             sortedDates.forEach(date => {
-                let dayOwe = false;
-                let dayOwed = false;
-                
-                const dTotal = weekData.days[date].reduce((s, e) => {
-                    if (e.type === 'i_owe' && !e.settled) dayOwe = true;
-                    if (e.type === 'owed_to_me' && !e.settled) dayOwed = true;
-                    if (e.type === 'owed_to_me' && e.settled) return s;
-                    return s + e.amount;
-                }, 0);
-                
-                let dayDotsHtml = getDotsHtml(dayOwe, dayOwed);
-                
+                const dTotal = weekData.days[date].reduce((s, e) => (e.type === 'owed_to_me' && e.settled ? s : s + e.amount), 0);
                 const limitToCompare = isCurrent ? safeDaily : ((baseWeekly - wSaving) / 7);
                 const isOver = dTotal > limitToCompare;
                 const isOpen = (date === todayStr);
@@ -870,7 +924,7 @@
                 html += `
                     <div class="day-group">
                         <div class="day-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
-                            <span class="day-date">${formatCleanDate(date)} ${dayDotsHtml}</span>
+                            <span class="day-date">${formatCleanDate(date)}</span>
                             <span class="day-meta ${isOver ? 'red' : ''}">
                                 ${formatINR(dTotal)} 
                                 <span class="limit">/ ${formatINR(limitToCompare)}</span>
@@ -880,31 +934,32 @@
                 `;
                 
                 weekData.days[date].sort((a,b) => b.id - a.id).forEach(exp => {
-                    let animClass = (exp.id === lastAddedExpenseId) ? 'new-expense-anim' : '';
-                    let settledClass = exp.settled ? 'settled-item' : '';
-                    
-                    let nameHtml = `<span>${exp.name}</span>`;
+                    let catLabel = exp.category || 'Misc';
+                    let nameHtml = `<div style="display:flex; flex-direction:column; align-items:flex-start;">
+                                        <span>${exp.name}</span>
+                                        <span class="cat-badge">${catLabel}</span>
+                                    </div>`;
                     let amtHtml = `<span class="muted">${formatINR(exp.amount)}</span>`;
 
                     if (exp.type === 'i_owe') {
-                        nameHtml = `<span style="display:flex; flex-direction:column; gap:2px;">
+                        nameHtml = `<div style="display:flex; flex-direction:column; align-items:flex-start;">
                                         <span>${exp.name}</span>
-                                        <span class="badge-orange">⚠️ You owe ${exp.friend}</span>
-                                    </span>`;
+                                        <span class="cat-badge">${catLabel}</span>
+                                        <span style="background:#ffedd5; color:#c2410c; padding:2px 6px; border-radius:6px; font-size:10px; font-weight:800; margin-top:2px;">⚠️ You owe ${exp.friend}</span>
+                                    </div>`;
                         if (!exp.settled) amtHtml = `<span style="color:#f97316; font-weight:700;">${formatINR(exp.amount)}</span>`;
                     } else if (exp.type === 'owed_to_me') {
-                        nameHtml = `<span style="display:flex; flex-direction:column; gap:2px;">
+                        nameHtml = `<div style="display:flex; flex-direction:column; align-items:flex-start;">
                                         <span>${exp.name}</span>
-                                        <span class="badge-purple">⏳ ${exp.friend} owes you</span>
-                                    </span>`;
+                                        <span class="cat-badge">${catLabel}</span>
+                                        <span style="background:#f3e8ff; color:#7e22ce; padding:2px 6px; border-radius:6px; font-size:10px; font-weight:800; margin-top:2px;">⏳ ${exp.friend} owes you</span>
+                                    </div>`;
                         if (!exp.settled) amtHtml = `<span style="color:#a855f7; font-weight:700;">${formatINR(exp.amount)}</span>`;
                     }
 
-                    if(exp.settled) {
-                        amtHtml = `<span class="muted">✅ ${formatINR(exp.amount)}</span>`;
-                    }
+                    if(exp.settled) amtHtml = `<span class="muted">✅ ${formatINR(exp.amount)}</span>`;
 
-                    html += `<li class="expense-item ${animClass} ${settledClass}" onclick="openEditModal(${exp.id})" style="align-items:flex-start;">
+                    html += `<li class="expense-item" onclick="openEditModal(${exp.id})" style="align-items:flex-start;">
                                 ${nameHtml}
                                 <div style="text-align:right;">${amtHtml}</div>
                              </li>`;
@@ -919,6 +974,7 @@
         
         lastAddedExpenseId = null;
     }
+    
     updateUI();
 </script>
 </body>
